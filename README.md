@@ -1,12 +1,3 @@
-# brainbox**BrainBox** is a perfect choice, Haile — it’s short, catchy, and feels creative while still hinting at “storing ideas.”
-
-It also works beautifully as a GitHub repo name (`brainbox`) and in your portfolio, because you can brand it easily with a simple logo (like a brain icon inside a box).
-
----
-
-### **How you can present BrainBox in GitHub**
-
-Here’s a **polished README intro** you could use from day one:
 
 ---
 
