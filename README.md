@@ -24,4 +24,3 @@ Runs entirely in Docker so you can deploy it anywhere with a single command.
 
 ---
 
-If you want, I can give you a **minimal MVP roadmap** so you can start coding BrainBox in a way that lets you finish the first working version fast — then improve it later for your portfolio. That way, you’ll have something to show in days, not months.
