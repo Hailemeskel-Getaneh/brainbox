@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  brainbox-api:
+    build: ./Backend
+    ports:
+      - "5000:5000"
+    environment:
+      - DB_HOST=db
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=brainbox
+    depends_on:
+      - db
+
+  brainbox-web:
+    build: ./Frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - brainbox-api
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=brainbox
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  postgres_data:
