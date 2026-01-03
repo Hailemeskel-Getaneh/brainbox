@@ -20,7 +20,7 @@ Runs entirely in Docker so you can deploy it anywhere with a single command.
 * **Frontend:** React
 * **Backend:** Node.js + Express
 * **Database:** PostgreSQL (with persistent volumes)
-* **Deployment:** Docker + Docker Compose
+* **Deployment:** Docker + Docker Compose with CI/CD
 
 ---
 
