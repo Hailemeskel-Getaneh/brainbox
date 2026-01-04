@@ -5,7 +5,7 @@
     "type": "module",
     "main": "src/server.js",
     "scripts": {
-        "start": "node index.js",
+        "start": "node src/server.js",
         "test": "jest"
     },
     "dependencies": {
@@ -15,7 +15,6 @@
     },
     "devDependencies": {
         "jest": "^29.7.0",
-
         "supertest": "^6.3.4"
     },
     "keywords": [],
