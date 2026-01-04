@@ -2,7 +2,8 @@
     "name": "brainbox-backend",
     "version": "1.0.0",
     "description": "Backend for BrainBox",
-    "main": "index.js",
+    "type": "module",
+    "main": "src/server.js",
     "scripts": {
         "start": "node index.js",
         "test": "jest"
