@@ -7,6 +7,7 @@ on:
     branches: [ "main" ]
 
 jobs:
+  
   frontend-build:
     runs-on: ubuntu-latest
     defaults:
@@ -39,9 +40,7 @@ jobs:
       with:
         node-version: '18.x'
     - name: Install dependencies
-      # We just created package.json, so no lockfile might exist yet.
-      # Using npm install instead of npm ci for initial flexibility
-      run: npm install
+      run: npm ci
     - name: Test
       run: npm test
 
