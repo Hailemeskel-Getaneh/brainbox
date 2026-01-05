@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const LandingPage = () => {
     const [status, setStatus] = useState<'loading' | 'online' | 'offline'>('loading');
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetch('http://localhost:5000/api/health')
@@ -23,7 +26,10 @@ const LandingPage = () => {
                 </p>
 
                 <div className="flex justify-center gap-4">
-                    <button className="px-8 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold transition-colors">
+                    <button
+                        onClick={() => navigate('/dashboard')}
+                        className="px-8 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold transition-colors"
+                    >
                         Get Started
                     </button>
                     <button className="px-8 py-3 bg-gray-800 hover:bg-gray-700 rounded-lg font-semibold transition-colors border border-gray-700">
@@ -35,10 +41,10 @@ const LandingPage = () => {
                     <div className="flex items-center gap-2 text-sm font-mono">
                         <span>System Status:</span>
                         <span className={`flex items-center gap-1.5 ${status === 'online' ? 'text-green-400' :
-                                status === 'offline' ? 'text-red-400' : 'text-yellow-400'
+                            status === 'offline' ? 'text-red-400' : 'text-yellow-400'
                             }`}>
                             <span className={`w-2 h-2 rounded-full ${status === 'online' ? 'bg-green-400' :
-                                    status === 'offline' ? 'bg-red-400' : 'bg-yellow-400 animate-pulse'
+                                status === 'offline' ? 'bg-red-400' : 'bg-yellow-400 animate-pulse'
                                 }`} />
                             {status.toUpperCase()}
                         </span>
