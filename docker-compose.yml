@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   brainbox-api:
     build: ./Backend

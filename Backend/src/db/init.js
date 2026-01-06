@@ -1,6 +1,6 @@
 import pool from './index.js';
 
-const createTables = async () => {
+export const createTables = async () => {
   const queryText = `
     CREATE TABLE IF NOT EXISTS topics (
       id SERIAL PRIMARY KEY,
@@ -18,12 +18,9 @@ const createTables = async () => {
 
   try {
     await pool.query(queryText);
-    console.log('Tables created successfully');
-    process.exit(0);
+    console.log('Tables verified/created successfully');
   } catch (err) {
     console.error('Error creating tables', err);
-    process.exit(1);
+    throw err;
   }
 };
-
-createTables();
