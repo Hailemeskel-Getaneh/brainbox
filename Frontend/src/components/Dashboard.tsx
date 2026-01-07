@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Trash2, ArrowRight } from 'lucide-react';
+import { Plus, Trash2, ArrowRight, LogOut } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 interface Topic {
     id: number;
@@ -12,13 +13,18 @@ const Dashboard = () => {
     const [topics, setTopics] = useState<Topic[]>([]);
     const [newTopic, setNewTopic] = useState('');
     const navigate = useNavigate();
+    const { token, logout, user } = useAuth();
 
     useEffect(() => {
         fetchTopics();
     }, []);
 
     const fetchTopics = async () => {
-        const res = await fetch('http://localhost:5000/api/topics');
+        const res = await fetch('http://localhost:5000/api/topics', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
         if (res.ok) {
             const data = await res.json();
             setTopics(data);
@@ -31,7 +37,10 @@ const Dashboard = () => {
 
         const res = await fetch('http://localhost:5000/api/topics', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
             body: JSON.stringify({ title: newTopic }),
         });
 
@@ -45,10 +54,18 @@ const Dashboard = () => {
         e.stopPropagation();
         const res = await fetch(`http://localhost:5000/api/topics/${id}`, {
             method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
         });
         if (res.ok) {
             fetchTopics();
         }
+    };
+
+    const handleLogout = () => {
+        logout();
+        navigate('/login');
     };
 
     return (
@@ -59,10 +76,14 @@ const Dashboard = () => {
                         <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600 mb-2">
                             My BrainBox
                         </h1>
-                        <p className="text-gray-400">Organize your thoughts and ideas.</p>
+                        <p className="text-gray-400">Welcome back, {user?.username}!</p>
                     </div>
-                    <button onClick={() => navigate('/')} className="text-sm text-gray-500 hover:text-white transition-colors">
-                        Back using Home
+                    <button
+                        onClick={handleLogout}
+                        className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors"
+                    >
+                        <LogOut size={18} />
+                        Logout
                     </button>
                 </header>
 

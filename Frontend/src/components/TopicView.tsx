@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Plus, Trash2, ArrowLeft } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 interface Note {
     id: number;
@@ -13,13 +14,18 @@ const TopicView = () => {
     const navigate = useNavigate();
     const [notes, setNotes] = useState<Note[]>([]);
     const [newNote, setNewNote] = useState('');
+    const { token } = useAuth();
 
     useEffect(() => {
         fetchNotes();
     }, [topicId]);
 
     const fetchNotes = async () => {
-        const res = await fetch(`http://localhost:5000/api/notes/${topicId}`);
+        const res = await fetch(`http://localhost:5000/api/notes/${topicId}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
         if (res.ok) {
             const data = await res.json();
             setNotes(data);
@@ -32,7 +38,10 @@ const TopicView = () => {
 
         const res = await fetch(`http://localhost:5000/api/notes/${topicId}`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
             body: JSON.stringify({ content: newNote }),
         });
 
@@ -45,6 +54,9 @@ const TopicView = () => {
     const handleDeleteNote = async (id: number) => {
         const res = await fetch(`http://localhost:5000/api/notes/${id}`, {
             method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
         });
         if (res.ok) {
             fetchNotes();
