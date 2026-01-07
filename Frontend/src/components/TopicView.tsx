@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Plus, Trash2, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -16,11 +16,7 @@ const TopicView = () => {
     const [newNote, setNewNote] = useState('');
     const { token } = useAuth();
 
-    useEffect(() => {
-        fetchNotes();
-    }, [topicId]);
-
-    const fetchNotes = async () => {
+    const fetchNotes = useCallback(async () => {
         const res = await fetch(`http://localhost:5000/api/notes/${topicId}`, {
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -30,7 +26,11 @@ const TopicView = () => {
             const data = await res.json();
             setNotes(data);
         }
-    };
+    }, [topicId, token]);
+
+    useEffect(() => {
+        fetchNotes();
+    }, [fetchNotes]);
 
     const handleCreateNote = async (e: React.FormEvent) => {
         e.preventDefault();

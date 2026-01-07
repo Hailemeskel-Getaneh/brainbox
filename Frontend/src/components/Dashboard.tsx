@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Trash2, ArrowRight, LogOut } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -15,11 +15,7 @@ const Dashboard = () => {
     const navigate = useNavigate();
     const { token, logout, user } = useAuth();
 
-    useEffect(() => {
-        fetchTopics();
-    }, []);
-
-    const fetchTopics = async () => {
+    const fetchTopics = useCallback(async () => {
         const res = await fetch('http://localhost:5000/api/topics', {
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -29,7 +25,11 @@ const Dashboard = () => {
             const data = await res.json();
             setTopics(data);
         }
-    };
+    }, [token]);
+
+    useEffect(() => {
+        fetchTopics();
+    }, [fetchTopics]);
 
     const handleCreateTopic = async (e: React.FormEvent) => {
         e.preventDefault();
