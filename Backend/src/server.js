@@ -1,6 +1,7 @@
 import { app } from './app.js';
 import pool from './db/index.js';
 import { createTables } from './db/init.js';
+import { migrateDatabase } from './db/migrate.js';
 
 const PORT = process.env.PORT || 5000;
 
@@ -14,6 +15,9 @@ const startServer = async () => {
 
             // Initialize Tables
             await createTables();
+
+            // Run migrations
+            await migrateDatabase();
 
             app.listen(PORT, () => {
                 console.log(`Server is running on port ${PORT}`);
