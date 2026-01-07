@@ -1,9 +1,18 @@
 import pool from './index.js';
 
-const createTables = async () => {
+export const createTables = async () => {
   const queryText = `
+    CREATE TABLE IF NOT EXISTS users (
+      id SERIAL PRIMARY KEY,
+      username VARCHAR(255) UNIQUE NOT NULL,
+      email VARCHAR(255) UNIQUE NOT NULL,
+      password_hash VARCHAR(255) NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+
     CREATE TABLE IF NOT EXISTS topics (
       id SERIAL PRIMARY KEY,
+      user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
       title VARCHAR(255) NOT NULL,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
@@ -18,12 +27,9 @@ const createTables = async () => {
 
   try {
     await pool.query(queryText);
-    console.log('Tables created successfully');
-    process.exit(0);
+    console.log('Tables verified/created successfully');
   } catch (err) {
     console.error('Error creating tables', err);
-    process.exit(1);
+    throw err;
   }
 };
-
-createTables();
