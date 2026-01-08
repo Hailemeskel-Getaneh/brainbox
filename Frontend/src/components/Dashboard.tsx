@@ -62,9 +62,11 @@ const Dashboard = () => {
 
       // Optimistic UI
       const optimistic: Topic = {
+
         id: Date.now(),
         title: newTopic,
         created_at: new Date().toISOString(),
+        
       };
       setTopics((prev) => [optimistic, ...prev]);
       setNewTopic('');
@@ -128,7 +130,7 @@ const Dashboard = () => {
           >
             <LogOut size={18} /> Logout
           </button>
-          
+
         </header>
 
         <form onSubmit={handleCreateTopic} className="mb-10 flex gap-4">
