@@ -121,12 +121,14 @@ const Dashboard = () => {
             </h1>
             <p className="text-gray-400">Welcome back, {user?.username}</p>
           </div>
+
           <button
             onClick={handleLogout}
             className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition"
           >
             <LogOut size={18} /> Logout
           </button>
+          
         </header>
 
         <form onSubmit={handleCreateTopic} className="mb-10 flex gap-4">
@@ -137,7 +139,7 @@ const Dashboard = () => {
             aria-label="New topic title"
             className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          
+
           <button
             type="submit"
             disabled={!newTopic.trim() || submitting}
