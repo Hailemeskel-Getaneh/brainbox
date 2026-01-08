@@ -37,6 +37,7 @@ const Dashboard = () => {
       if (!res.ok) throw new Error('Failed to load topics');
       const data = await res.json();
       setTopics(data);
+      
     } catch (err: any) {
       if (err.name !== 'AbortError') {
         setError(err.message ?? 'Something went wrong');
@@ -53,7 +54,7 @@ const Dashboard = () => {
   }, [fetchTopics]);
 
   const handleCreateTopic = async (e: React.FormEvent) => {
-    
+
     e.preventDefault();
     if (!newTopic.trim()) return;
 
