@@ -173,6 +173,7 @@ const Dashboard = () => {
                   <h2 className="text-lg font-semibold group-hover:text-blue-400">
                     {topic.title}
                   </h2>
+                  
                   <button
                     onClick={(e) => handleDeleteTopic(topic.id, e)}
                     aria-label="Delete topic"
@@ -181,6 +182,7 @@ const Dashboard = () => {
                     <Trash2 size={16} />
                   </button>
                 </div>
+
                 <div className="flex justify-between items-center text-sm text-gray-500">
                   <span>{new Date(topic.created_at).toLocaleDateString()}</span>
                   <ArrowRight className="group-hover:text-blue-400 group-hover:translate-x-1 transition" size={18} />
