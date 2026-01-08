@@ -162,8 +162,10 @@ const Dashboard = () => {
             No topics yet. Start by creating your first one.
           </div>
         ) : (
+            
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {topics.map((topic) => (
+
               <div
                 key={topic.id}
                 onClick={() => navigate(`/topic/${topic.id}`)}
@@ -173,7 +175,7 @@ const Dashboard = () => {
                   <h2 className="text-lg font-semibold group-hover:text-blue-400">
                     {topic.title}
                   </h2>
-                  
+
                   <button
                     onClick={(e) => handleDeleteTopic(topic.id, e)}
                     aria-label="Delete topic"
