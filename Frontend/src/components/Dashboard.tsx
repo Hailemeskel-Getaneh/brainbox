@@ -53,6 +53,7 @@ const Dashboard = () => {
   }, [fetchTopics]);
 
   const handleCreateTopic = async (e: React.FormEvent) => {
+    
     e.preventDefault();
     if (!newTopic.trim()) return;
 
@@ -66,7 +67,7 @@ const Dashboard = () => {
         id: Date.now(),
         title: newTopic,
         created_at: new Date().toISOString(),
-        
+
       };
       setTopics((prev) => [optimistic, ...prev]);
       setNewTopic('');
