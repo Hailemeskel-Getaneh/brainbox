@@ -137,6 +137,7 @@ const Dashboard = () => {
             aria-label="New topic title"
             className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
+          
           <button
             type="submit"
             disabled={!newTopic.trim() || submitting}
@@ -145,6 +146,7 @@ const Dashboard = () => {
             {submitting ? <Loader2 className="animate-spin" size={18} /> : <Plus size={18} />}
             Add Topic
           </button>
+
         </form>
 
         {error && (
@@ -162,7 +164,7 @@ const Dashboard = () => {
             No topics yet. Start by creating your first one.
           </div>
         ) : (
-            
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {topics.map((topic) => (
 
