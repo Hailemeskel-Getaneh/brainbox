@@ -98,7 +98,7 @@ const Dashboard = () => {
                     <button
                         type="submit"
                         disabled={!newTopic.trim()}
-                        className="bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed px-6 py-3 rounded-lg font-semibold flex items-center gap-2 transition-all"
+                        className="bg-blue-700 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed px-6 py-3 rounded-lg font-semibold flex items-center gap-2 transition-all"
                     >
                         <Plus size={20} />
                         Add Topic
@@ -124,7 +124,7 @@ const Dashboard = () => {
                                 </button>
                             </div>
                             <div className="flex justify-end">
-                                <ArrowRight className="text-gray-600 group-hover:text-blue-400 transform group-hover:translate-x-1 transition-all" size={20} />
+                                <ArrowRight className="text-gray-700 group-hover:text-blue-400 transform group-hover:translate-x-1 transition-all" size={20} />
                             </div>
                         </div>
                     ))}
