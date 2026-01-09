@@ -2,7 +2,7 @@
 
 **Your personal, self-hosted knowledge vault.**
 
-BrainBox is a lightweight web application designed to help you capture, organize, and manage your thoughts, topics, and notes. It features a modern React frontend and a robust Node.js/Express backend backed by PostgreSQL.
+BrainBox is a lightweight web application designed to help you capture, organize, and manage your thoughts, topics, and notes. It features a modern React frontend and a robust Node.js/Express backend backed by PostgreSQL, Dockerized.
 
 ---
 
