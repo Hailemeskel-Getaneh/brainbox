@@ -34,9 +34,11 @@ const Dashboard = () => {
         headers: authHeaders,
         signal,
       });
+
       if (!res.ok) throw new Error('Failed to load topics');
       const data = await res.json();
       setTopics(data);
+      
       
     } catch (err: any) {
       if (err.name !== 'AbortError') {
