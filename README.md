@@ -11,7 +11,7 @@ BrainBox is a lightweight web application designed to help you capture, organize
 *   **Frontend**: React, Vite, Tailwind CSS, TypeScript, Lucide Icons
 *   **Backend**: Node.js, Express.js
 *   **Database**: PostgreSQL
-*   **Infrastructure**: Docker, Docker Compose
+*   **Infrastructure**: Docker, Docker Compose, Github actions
 
 ---
 
