@@ -1,5 +1,6 @@
 import pool from '../db/index.js';
 
+
 export const getTopics = async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM topics WHERE user_id = $1 ORDER BY created_at DESC', [req.user.id]);
@@ -8,6 +9,7 @@ export const getTopics = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
 
 export const createTopic = async (req, res) => {
     try {
@@ -36,3 +38,4 @@ export const deleteTopic = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
