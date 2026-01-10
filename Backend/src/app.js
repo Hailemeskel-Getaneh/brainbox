@@ -18,9 +18,10 @@ app.use('/api/auth', userRoutes);
 app.use('/api/topics', authMiddleware, topicsRoutes);
 app.use('/api/notes', authMiddleware, notesRoutes);
 
-// Health Check
+// Health Check of the app
 app.get('/api/health', (req, res) => {
     res.status(200).json({ status: 'ok', message: 'Backend is running' });
 });
 
 export { app };
+
