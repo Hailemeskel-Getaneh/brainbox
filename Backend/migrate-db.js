@@ -17,7 +17,7 @@ async function runMigration() {
     try {
         console.log('Connecting to database...');
 
-        // Check if user_id column exists
+        // Check weather user_id column exists or not
         const checkColumn = await pool.query(`
             SELECT column_name 
             FROM information_schema.columns 
@@ -58,3 +58,4 @@ async function runMigration() {
 }
 
 runMigration();
+
