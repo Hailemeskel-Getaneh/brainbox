@@ -11,7 +11,8 @@ const authMiddleware = (req, res, next) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         req.user = decoded;
         next();
-    } catch (err) {
+    // eslint-disable-next-line no-unused-vars
+    } catch (_) {
         res.status(400).json({ error: 'Invalid token.' });
     }
 };
