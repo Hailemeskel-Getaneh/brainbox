@@ -9,6 +9,7 @@ interface Note {
   id: number;
   content: string;
   created_at: string;
+  tags?: string[];
 }
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5000';
@@ -26,6 +27,9 @@ const TopicView = () => {
   const [editingNoteId, setEditingNoteId] = useState<number | null>(null);
   const [editEditorContent, setEditEditorContent] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState<string>('');
+  const [newNoteTags, setNewNoteTags] = useState<string>('');
+  const [editingNoteTags, setEditingNoteTags] = useState<string>('');
+  const [filterTags, setFilterTags] = useState<string>('');
 
   const createEditor = (initialContent: string, onUpdateCallback: (editor: any) => void) => useEditor({
     extensions: [
@@ -51,10 +55,12 @@ const TopicView = () => {
       if (noteToEdit) {
         editEditor?.commands.setContent(noteToEdit.content);
         setEditEditorContent(noteToEdit.content); // Ensure state is aligned
+        setEditingNoteTags(noteToEdit.tags?.join(', ') || ''); // Populate editing tags
       }
     } else {
       editEditor?.commands.clearContent();
       setEditEditorContent('');
+      setEditingNoteTags(''); // Clear editing tags
     }
   }, [editingNoteId, notes, editEditor]);
 
@@ -79,7 +85,16 @@ const TopicView = () => {
       const topicData = await res.json();
       setTopicTitle(topicData.title);
 
-      const notesRes = await fetch(`${API_BASE}/api/notes/${topicId}${searchTerm ? `?searchTerm=${searchTerm}` : ''}`, {
+      const queryParams = new URLSearchParams();
+      if (searchTerm) {
+        queryParams.append('searchTerm', searchTerm);
+      }
+      if (filterTags) {
+        queryParams.append('tags', filterTags);
+      }
+
+      const queryString = queryParams.toString();
+      const notesRes = await fetch(`${API_BASE}/api/notes/${topicId}${queryString ? `?${queryString}` : ''}`, {
         headers: authHeaders,
         signal,
       });
@@ -99,7 +114,7 @@ const TopicView = () => {
     } finally {
       setLoading(false);
     }
-  }, [topicId, authHeaders, navigate, searchTerm]);
+  }, [topicId, authHeaders, navigate, searchTerm, filterTags]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -107,50 +122,53 @@ const TopicView = () => {
     return () => controller.abort();
   }, [fetchNotes]);
 
-  const handleCreateNote = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const content = mainEditor?.getHTML();
-    if (!content || mainEditor?.isEmpty) return;
-    if (!topicId) return;
-
-    try {
-      setSubmitting(true);
-      setError(null);
-
-      // Optimistic UI update
-      const optimisticNote: Note = {
-        id: Date.now(),
-        topic_id: parseInt(topicId),
-        content: content,
-        created_at: new Date().toISOString(),
-      };
-      setNotes((prev) => [...prev, optimisticNote]);
-      editor?.commands.clearContent();
-
-      const res = await fetch(`${API_BASE}/api/notes/${topicId}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...authHeaders,
-        },
-        body: JSON.stringify({ content }),
-      });
-
-      if (!res.ok) {
-        const errData = await res.json();
-        throw new Error(errData.error || 'Failed to create note');
+      const handleCreateNote = async (e: React.FormEvent) => {
+      e.preventDefault();
+      const content = mainEditor?.getHTML();
+      if (!content || mainEditor?.isEmpty) return;
+      if (!topicId) return;
+  
+      const tagsArray = newNoteTags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
+  
+      try {
+        setSubmitting(true);
+        setError(null);
+  
+        // Optimistic UI update
+        const optimisticNote: Note = {
+          id: Date.now(),
+          topic_id: parseInt(topicId),
+          content: content,
+          created_at: new Date().toISOString(),
+          tags: tagsArray, // Include tags in optimistic update
+        };
+        setNotes((prev) => [...prev, optimisticNote]);
+        mainEditor?.commands.clearContent(); // Clear main editor content
+        setNewNoteTags(''); // Clear new note tags
+  
+        const res = await fetch(`${API_BASE}/api/notes/${topicId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...authHeaders,
+          },
+          body: JSON.stringify({ content, tags: tagsArray }), // Send tags to backend
+        });
+  
+        if (!res.ok) {
+          const errData = await res.json();
+          throw new Error(errData.error || 'Failed to create note');
+        }
+        await fetchNotes(); // Re-fetch to get accurate data and ID
+      } catch (err: any) {
+        setError(err.message ?? 'Unable to create note');
+        // Rollback optimistic update on error
+        if (topicId) fetchNotes();
+      } finally {
+        setSubmitting(false);
       }
-      await fetchNotes(); // Re-fetch to get accurate data and ID
-    } catch (err: any) {
-      setError(err.message ?? 'Unable to create note');
-      // Rollback optimistic update on error
-      if (topicId) fetchNotes();
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const handleUpdateNote = async (id: number, content: string) => {
+    };
+  const handleUpdateNote = async (id: number, content: string, tags?: string[]) => {
     if (!topicId) return; // Should not happen as notes are topic-specific
     try {
       setSubmitting(true); // Indicate submission in progress
@@ -162,7 +180,7 @@ const TopicView = () => {
           'Content-Type': 'application/json',
           ...authHeaders,
         },
-        body: JSON.stringify({ content }),
+        body: JSON.stringify({ content, tags }),
       });
 
       if (!res.ok) {
@@ -248,6 +266,30 @@ const TopicView = () => {
           </div>
         </div>
 
+        <div className="relative mb-6">
+          <input
+            type="text"
+            placeholder="Filter by tags (comma-separated)"
+            value={filterTags}
+            onChange={(e) => setFilterTags(e.target.value)}
+            className="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 pl-10 pr-10 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+          />
+          {filterTags && (
+            <button
+              onClick={() => setFilterTags('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+            >
+              &times;
+            </button>
+          )}
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+            {/* Tag icon or similar */}
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5.99C17.65 3 21 6.35 21 10c0 4.63-3.37 8-8 8H6c-3.65 0-7-3.35-7-7 0-3.65 3.35-7 7-7zm0 14h10c3.35 0 6-2.65 6-6s-2.65-6-6-6H7C3.35 6 0 8.65 0 12s2.65 6 6 6z" />
+            </svg>
+          </div>
+        </div>
+
         {error && (
           <div className="mb-6 rounded-lg bg-red-500/10 border border-red-500/30 p-4 text-red-300">
             {error}
@@ -257,6 +299,13 @@ const TopicView = () => {
         <div className="mb-8 p-4 bg-gray-800 rounded-lg shadow-lg">
           <form onSubmit={handleCreateNote} className="flex flex-col gap-4">
             <EditorContent editor={mainEditor} className="bg-gray-700 rounded-md p-3 min-h-[100px] focus-within:ring-2 focus-within:ring-blue-500 transition" />
+            <input
+              type="text"
+              placeholder="Add tags (comma-separated)"
+              value={newNoteTags}
+              onChange={(e) => setNewNoteTags(e.target.value)}
+              className="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+            />
             <div className="flex justify-end">
               <button
                 type="submit"
@@ -287,12 +336,20 @@ const TopicView = () => {
                   <form onSubmit={(e) => {
                     e.preventDefault();
                     if (editEditor && !editEditor.isEmpty && editingNoteId !== null) {
-                      handleUpdateNote(editingNoteId, editEditor.getHTML());
+                      const tagsArray = editingNoteTags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
+                      handleUpdateNote(editingNoteId, editEditor.getHTML(), tagsArray);
                     }
                   }} className="flex flex-col gap-4">
                     <EditorContent
                       editor={editEditor}
                       className="bg-gray-700 rounded-md p-3 min-h-[100px] focus-within:ring-2 focus-within:ring-blue-500 transition"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Add tags (comma-separated)"
+                      value={editingNoteTags}
+                      onChange={(e) => setEditingNoteTags(e.target.value)}
+                      className="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
                     />
                     <div className="flex justify-end gap-2">
                       <button
@@ -300,6 +357,7 @@ const TopicView = () => {
                         onClick={() => {
                           setEditingNoteId(null);
                           setEditEditorContent('');
+                          setEditingNoteTags('');
                         }}
                         className="px-4 py-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-700 transition"
                       >
@@ -321,6 +379,15 @@ const TopicView = () => {
                       className="prose prose-invert max-w-none text-gray-300"
                       dangerouslySetInnerHTML={{ __html: note.content }}
                     />
+                    {note.tags && note.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {note.tags.map((tag, index) => (
+                          <span key={index} className="bg-blue-600/30 text-blue-300 text-xs px-2 py-1 rounded-full">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                     <div className="flex justify-between items-center text-sm text-gray-500 mt-2">
                       <span>{new Date(note.created_at).toLocaleString()}</span>
                       <div className="flex gap-2">

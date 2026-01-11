@@ -3,7 +3,7 @@ import pool from '../db/index.js';
 export const getNotes = async (req, res) => {
     try {
         const { topicId } = req.params;
-        const { searchTerm } = req.query; // Get searchTerm from query parameters
+        const { searchTerm, tags } = req.query; // Get searchTerm and tags from query parameters
 
         // Verify topic ownership
         const topicCheck = await pool.query('SELECT * FROM topics WHERE id = $1 AND user_id = $2', [topicId, req.user.id]);
@@ -13,13 +13,26 @@ export const getNotes = async (req, res) => {
 
         let query = 'SELECT * FROM notes WHERE topic_id = $1';
         const queryParams = [topicId];
+        let paramIndex = 2; // Start index for additional parameters
 
         if (searchTerm) {
             queryParams.push(`%${searchTerm}%`);
-            query += ` AND content ILIKE $${queryParams.length}`; // Add search condition
+            query += ` AND content ILIKE $${paramIndex}`;
+            paramIndex++;
         }
 
-        query += ' ORDER BY created_at ASC'; // Always order by created_at
+        if (tags) {
+            // tags can be a comma-separated string, convert to array
+            const tagArray = Array.isArray(tags) ? tags : tags.split(',');
+            // For checking if ALL tags are present in the TEXT[] column
+            // Use ANY for checking if ANY tag is present
+            // For checking ALL, we need to iterate
+            query += ` AND tags @> $${paramIndex}::TEXT[]`; // PostgreSQL contains operator for arrays
+            queryParams.push(tagArray);
+            paramIndex++;
+        }
+
+        query += ' ORDER BY created_at ASC';
 
         const result = await pool.query(query, queryParams);
         res.json(result.rows);
@@ -31,7 +44,7 @@ export const getNotes = async (req, res) => {
 export const createNote = async (req, res) => {
     try {
         const { topicId } = req.params;
-        const { content } = req.body;
+        const { content, tags } = req.body; // Destructure tags from req.body
 
         // Verify topic ownership
         const topicCheck = await pool.query('SELECT * FROM topics WHERE id = $1 AND user_id = $2', [topicId, req.user.id]);
@@ -39,9 +52,10 @@ export const createNote = async (req, res) => {
             return res.status(404).json({ error: 'Topic not found or access denied' });
         }
 
+        // Use COALESCE for tags to ensure an empty array is used if not provided
         const result = await pool.query(
-            'INSERT INTO notes (topic_id, content) VALUES ($1, $2) RETURNING *',
-            [topicId, content]
+            'INSERT INTO notes (topic_id, content, tags) VALUES ($1, $2, COALESCE($3, ARRAY[]::TEXT[])) RETURNING *',
+            [topicId, content, tags] // Pass tags to the query
         );
         res.status(201).json(result.rows[0]);
     } catch (error) {
@@ -87,7 +101,7 @@ export const searchNotes = async (req, res) => {
 export const updateNote = async (req, res) => {
     try {
         const { id } = req.params;
-        const { content } = req.body;
+        const { content, tags } = req.body; // Destructure tags from req.body
 
         // Verify note ownership through topic ownership
         const noteCheck = await pool.query(
@@ -101,9 +115,10 @@ export const updateNote = async (req, res) => {
             return res.status(404).json({ error: 'Note not found or access denied' });
         }
 
+        // Update content and tags. Use COALESCE for tags.
         const result = await pool.query(
-            'UPDATE notes SET content = $1 WHERE id = $2 RETURNING *',
-            [content, id]
+            'UPDATE notes SET content = $1, tags = COALESCE($2, ARRAY[]::TEXT[]) WHERE id = $3 RETURNING *',
+            [content, tags, id]
         );
 
         res.json(result.rows[0]);

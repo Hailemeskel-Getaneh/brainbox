@@ -26,6 +26,24 @@ export const migrateDatabase = async () => {
 
             console.log('Migration skipped: user_id column already exists');
         }
+
+        // Migration to add tags column to notes table
+        const tagsColumnCheck = await pool.query(`
+            SELECT column_name 
+            FROM information_schema.columns 
+            WHERE table_name='notes' AND column_name='tags'
+        `);
+
+        if (tagsColumnCheck.rows.length === 0) {
+            console.log('Adding tags column to notes table...');
+            await pool.query(`
+                ALTER TABLE notes 
+                ADD COLUMN tags TEXT[] DEFAULT '{}'
+            `);
+            console.log('Migration completed: tags column added to notes table');
+        } else {
+            console.log('Migration skipped: tags column already exists');
+        }
     } catch (err) {
         console.error('Migration error:', err);
         throw err;
