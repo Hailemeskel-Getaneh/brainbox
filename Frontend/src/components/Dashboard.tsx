@@ -1,12 +1,19 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Trash2, ArrowRight, LogOut, Loader2 } from 'lucide-react';
+import { Plus, Trash2, ArrowRight, LogOut, Loader2, Search } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 interface Topic {
   id: number;
   title: string;
   created_at: string;
+}
+
+interface SearchResult {
+  id: number;
+  content: string;
+  topic_id: number;
+  topic_title: string;
 }
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5000';
@@ -17,6 +24,9 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [searching, setSearching] = useState(false);
 
   const navigate = useNavigate();
   const { token, logout, user } = useAuth();
@@ -51,9 +61,40 @@ const Dashboard = () => {
 
   useEffect(() => {
     const controller = new AbortController();
-    fetchTopics(controller.signal);
+    if (!searchTerm) {
+      fetchTopics(controller.signal);
+    }
     return () => controller.abort();
-  }, [fetchTopics]);
+  }, [fetchTopics, searchTerm]);
+
+  useEffect(() => {
+    if (!searchTerm.trim()) {
+      setSearchResults([]);
+      return;
+    }
+
+    const search = async () => {
+      try {
+        setSearching(true);
+        const res = await fetch(`${API_BASE}/api/notes/search/${searchTerm}`, {
+          headers: authHeaders,
+        });
+        if (!res.ok) throw new Error('Search failed');
+        const data = await res.json();
+        setSearchResults(data);
+      } catch (err: any) {
+        setError(err.message ?? 'Something went wrong');
+      } finally {
+        setSearching(false);
+      }
+    };
+
+    const debounceSearch = setTimeout(() => {
+        search();
+    }, 300);
+
+    return () => clearTimeout(debounceSearch);
+  }, [searchTerm, authHeaders]);
 
   const handleCreateTopic = async (e: React.FormEvent) => {
 
@@ -137,71 +178,111 @@ const Dashboard = () => {
 
         </header>
 
-        <form onSubmit={handleCreateTopic} className="mb-10 flex gap-4">
-          <input
-            value={newTopic}
-            onChange={(e) => setNewTopic(e.target.value)}
-            placeholder="Create a new topic…"
-            aria-label="New topic title"
-            className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-
-          <button
-            type="submit"
-            disabled={!newTopic.trim() || submitting}
-            className="bg-blue-700 hover:bg-blue-500 disabled:opacity-50 px-6 py-3 rounded-lg font-semibold flex items-center gap-2"
-          >
-            {submitting ? <Loader2 className="animate-spin" size={18} /> : <Plus size={18} />}
-            Add Topic
-          </button>
-
-        </form>
-
-        {error && (
-          <div className="mb-6 rounded-lg bg-red-500/10 border border-red-500/30 p-4 text-red-300">
-            {error}
+        <div className="mb-10 flex gap-4">
+          <div className="relative flex-1">
+            <input
+              type="search"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search in all notes..."
+              className="w-full bg-gray-800 border border-gray-700 rounded-lg pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
+            {searching && <Loader2 size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 animate-spin" />}
           </div>
-        )}
+        </div>
 
-        {loading ? (
-          <div className="flex justify-center py-20">
-            <Loader2 className="animate-spin" size={36} />
-          </div>
-        ) : topics.length === 0 ? (
-          <div className="text-center py-20 text-gray-400">
-            No topics yet. Start by creating your first one.
+        {searchTerm ? (
+          <div className="mb-10">
+            <h2 className="text-2xl font-bold mb-6">Search Results</h2>
+            {searching && searchResults.length === 0 ? (
+                <div className="flex justify-center py-20">
+                    <Loader2 className="animate-spin" size={36} />
+                </div>
+            ) : searchResults.length > 0 ? (
+              <div className="space-y-4">
+                {searchResults.map((note) => (
+                  <div key={note.id} className="bg-gray-800/50 p-4 rounded-lg border border-gray-700">
+                    <p
+                      onClick={() => navigate(`/topic/${note.topic_id}`)}
+                      className="text-sm text-blue-400 mb-2 cursor-pointer hover:underline"
+                    >
+                      in: {note.topic_title}
+                    </p>
+                    <p className="text-gray-300">{note.content}</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-400 text-center py-10">No results found for "{searchTerm}".</p>
+            )}
           </div>
         ) : (
+          <>
+            <form onSubmit={handleCreateTopic} className="mb-10 flex gap-4">
+              <input
+                value={newTopic}
+                onChange={(e) => setNewTopic(e.target.value)}
+                placeholder="Create a new topic…"
+                aria-label="New topic title"
+                className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {topics.map((topic) => (
-
-              <div
-                key={topic.id}
-                onClick={() => navigate(`/topic/${topic.id}`)}
-                className="bg-gray-800/50 hover:bg-gray-800 border border-gray-700 rounded-xl p-6 cursor-pointer group transition hover:scale-[1.02]"
+              <button
+                type="submit"
+                disabled={!newTopic.trim() || submitting}
+                className="bg-blue-700 hover:bg-blue-500 disabled:opacity-50 px-6 py-3 rounded-lg font-semibold flex items-center gap-2"
               >
-                <div className="flex justify-between items-start mb-3">
-                  <h2 className="text-lg font-semibold group-hover:text-blue-400">
-                    {topic.title}
-                  </h2>
+                {submitting ? <Loader2 className="animate-spin" size={18} /> : <Plus size={18} />}
+                Add Topic
+              </button>
+            </form>
 
-                  <button
-                    onClick={(e) => handleDeleteTopic(topic.id, e)}
-                    aria-label="Delete topic"
-                    className="text-gray-500 hover:text-red-400 p-1 rounded-full hover:bg-red-400/10"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-
-                <div className="flex justify-between items-center text-sm text-gray-500">
-                  <span>{new Date(topic.created_at).toLocaleDateString()}</span>
-                  <ArrowRight className="group-hover:text-blue-400 group-hover:translate-x-1 transition" size={18} />
-                </div>
+            {error && (
+              <div className="mb-6 rounded-lg bg-red-500/10 border border-red-500/30 p-4 text-red-300">
+                {error}
               </div>
-            ))}
-          </div>
+            )}
+
+            {loading ? (
+              <div className="flex justify-center py-20">
+                <Loader2 className="animate-spin" size={36} />
+              </div>
+            ) : topics.length === 0 ? (
+              <div className="text-center py-20 text-gray-400">
+                No topics yet. Start by creating your first one.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {topics.map((topic) => (
+                  <div
+                    key={topic.id}
+                    onClick={() => navigate(`/topic/${topic.id}`)}
+                    className="bg-gray-800/50 hover:bg-gray-800 border border-gray-700 rounded-xl p-6 cursor-pointer group transition hover:scale-[1.02]"
+                  >
+                    <div className="flex justify-between items-start mb-3">
+                      <h2 className="text-lg font-semibold group-hover:text-blue-400">
+                        {topic.title}
+                      </h2>
+
+                      <button
+                        onClick={(e) => handleDeleteTopic(topic.id, e)}
+                        aria-label="Delete topic"
+                        className="text-gray-500 hover:text-red-400 p-1 rounded-full hover:bg-red-400/10"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+
+                    <div className="flex justify-between items-center text-sm text-gray-500">
+                      <span>{new Date(topic.created_at).toLocaleDateString()}</span>
+                      <ArrowRight className="group-hover:text-blue-400 group-hover:translate-x-1 transition" size={18} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

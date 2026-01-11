@@ -59,3 +59,19 @@ export const deleteNote = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+export const searchNotes = async (req, res) => {
+    try {
+        const { term } = req.params;
+        const result = await pool.query(
+            `SELECT n.*, t.title as topic_title FROM notes n
+             JOIN topics t ON n.topic_id = t.id
+             WHERE t.user_id = $1 AND n.content ILIKE $2
+             ORDER BY n.created_at DESC`,
+            [req.user.id, `%${term}%`]
+        );
+        res.json(result.rows);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
