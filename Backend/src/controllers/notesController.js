@@ -75,3 +75,31 @@ export const searchNotes = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+export const updateNote = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { content } = req.body;
+
+        // Verify note ownership through topic ownership
+        const noteCheck = await pool.query(
+            `SELECT n.id, n.topic_id FROM notes n
+             JOIN topics t ON n.topic_id = t.id
+             WHERE n.id = $1 AND t.user_id = $2`,
+            [id, req.user.id]
+        );
+
+        if (noteCheck.rows.length === 0) {
+            return res.status(404).json({ error: 'Note not found or access denied' });
+        }
+
+        const result = await pool.query(
+            'UPDATE notes SET content = $1 WHERE id = $2 RETURNING *',
+            [content, id]
+        );
+
+        res.json(result.rows[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};

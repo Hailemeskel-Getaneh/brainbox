@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Plus, Trash2, ArrowLeft, Loader2 } from 'lucide-react';
+import { Plus, Trash2, ArrowLeft, Loader2, Pencil } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
@@ -23,17 +23,39 @@ const TopicView = () => {
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [editingNoteId, setEditingNoteId] = useState<number | null>(null);
+  const [editEditorContent, setEditEditorContent] = useState<string>('');
 
-  const editor = useEditor({
+  const createEditor = (initialContent: string, onUpdateCallback: (editor: any) => void) => useEditor({
     extensions: [
       StarterKit,
     ],
-    content: '',
+    content: initialContent,
     onUpdate: ({ editor }) => {
-      // You can add debounced saving here if needed,
-      // but for now, we'll get content on submit
+      onUpdateCallback(editor);
     },
   });
+
+  const mainEditor = createEditor('', (editor) => {
+    // Main editor's onUpdate logic
+  });
+
+  const editEditor = createEditor(editEditorContent, (editor) => {
+    setEditEditorContent(editor.getHTML());
+  });
+
+  useEffect(() => {
+    if (editingNoteId !== null) {
+      const noteToEdit = notes.find(note => note.id === editingNoteId);
+      if (noteToEdit) {
+        editEditor?.commands.setContent(noteToEdit.content);
+        setEditEditorContent(noteToEdit.content); // Ensure state is aligned
+      }
+    } else {
+      editEditor?.commands.clearContent();
+      setEditEditorContent('');
+    }
+  }, [editingNoteId, notes, editEditor]);
 
   const authHeaders = useMemo(
     () => ({ Authorization: `Bearer ${token}` }),
@@ -86,8 +108,8 @@ const TopicView = () => {
 
   const handleCreateNote = async (e: React.FormEvent) => {
     e.preventDefault();
-    const content = editor?.getHTML();
-    if (!content || editor?.isEmpty) return;
+    const content = mainEditor?.getHTML();
+    if (!content || mainEditor?.isEmpty) return;
     if (!topicId) return;
 
     try {
@@ -124,6 +146,36 @@ const TopicView = () => {
       if (topicId) fetchNotes();
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleUpdateNote = async (id: number, content: string) => {
+    if (!topicId) return; // Should not happen as notes are topic-specific
+    try {
+      setSubmitting(true); // Indicate submission in progress
+      setError(null);
+
+      const res = await fetch(`${API_BASE}/api/notes/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          ...authHeaders,
+        },
+        body: JSON.stringify({ content }),
+      });
+
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || 'Failed to update note');
+      }
+
+      setEditingNoteId(null); // Exit editing mode
+      setEditEditorContent(''); // Clear the editing content
+      await fetchNotes(); // Re-fetch to get updated data
+    } catch (err: any) {
+      setError(err.message ?? 'Unable to update note');
+    } finally {
+      setSubmitting(false); // End submission
     }
   };
 
@@ -171,11 +223,11 @@ const TopicView = () => {
 
         <div className="mb-8 p-4 bg-gray-800 rounded-lg shadow-lg">
           <form onSubmit={handleCreateNote} className="flex flex-col gap-4">
-            <EditorContent editor={editor} className="bg-gray-700 rounded-md p-3 min-h-[100px] focus-within:ring-2 focus-within:ring-blue-500 transition" />
+            <EditorContent editor={mainEditor} className="bg-gray-700 rounded-md p-3 min-h-[100px] focus-within:ring-2 focus-within:ring-blue-500 transition" />
             <div className="flex justify-end">
               <button
                 type="submit"
-                disabled={submitting || editor?.isEmpty}
+                disabled={submitting || mainEditor?.isEmpty}
                 className="bg-blue-700 hover:bg-blue-500 disabled:opacity-50 px-6 py-3 rounded-lg font-semibold flex items-center gap-2"
               >
                 {submitting ? <Loader2 className="animate-spin" size={18} /> : <Plus size={18} />}
@@ -197,20 +249,69 @@ const TopicView = () => {
           <div className="space-y-4">
             {notes.map((note) => (
               <div key={note.id} className="bg-gray-800/50 p-4 rounded-lg border border-gray-700">
-                <div
-                  className="prose prose-invert max-w-none text-gray-300"
-                  dangerouslySetInnerHTML={{ __html: note.content }}
-                />
-                <div className="flex justify-between items-center text-sm text-gray-500 mt-2">
-                  <span>{new Date(note.created_at).toLocaleString()}</span>
-                  <button
-                    onClick={() => handleDeleteNote(note.id)}
-                    aria-label="Delete note"
-                    className="text-gray-500 hover:text-red-400 p-1 rounded-full hover:bg-red-400/10"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
+                {editingNoteId === note.id ? (
+                  // Editing mode
+                  <form onSubmit={(e) => {
+                    e.preventDefault();
+                    if (editEditor && !editEditor.isEmpty && editingNoteId !== null) {
+                      handleUpdateNote(editingNoteId, editEditor.getHTML());
+                    }
+                  }} className="flex flex-col gap-4">
+                    <EditorContent
+                      editor={editEditor}
+                      className="bg-gray-700 rounded-md p-3 min-h-[100px] focus-within:ring-2 focus-within:ring-blue-500 transition"
+                    />
+                    <div className="flex justify-end gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditingNoteId(null);
+                          setEditEditorContent('');
+                        }}
+                        className="px-4 py-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-700 transition"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={!editEditor || editEditor.isEmpty}
+                        className="bg-green-700 hover:bg-green-500 disabled:opacity-50 px-4 py-2 rounded-lg font-semibold"
+                      >
+                        Save
+                      </button>
+                    </div>
+                  </form>
+                ) : (
+                  // View mode
+                  <>
+                    <div
+                      className="prose prose-invert max-w-none text-gray-300"
+                      dangerouslySetInnerHTML={{ __html: note.content }}
+                    />
+                    <div className="flex justify-between items-center text-sm text-gray-500 mt-2">
+                      <span>{new Date(note.created_at).toLocaleString()}</span>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleDeleteNote(note.id)}
+                          aria-label="Delete note"
+                          className="text-gray-500 hover:text-red-400 p-1 rounded-full hover:bg-red-400/10"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                        <button
+                          onClick={() => {
+                            setEditingNoteId(note.id);
+                            setEditEditorContent(note.content);
+                          }}
+                          aria-label="Edit note"
+                          className="text-gray-500 hover:text-blue-400 p-1 rounded-full hover:bg-blue-400/10"
+                        >
+                          <Pencil size={16} />
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             ))}
           </div>
