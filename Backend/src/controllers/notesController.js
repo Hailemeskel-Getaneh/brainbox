@@ -3,6 +3,7 @@ import pool from '../db/index.js';
 export const getNotes = async (req, res) => {
     try {
         const { topicId } = req.params;
+        const { searchTerm } = req.query; // Get searchTerm from query parameters
 
         // Verify topic ownership
         const topicCheck = await pool.query('SELECT * FROM topics WHERE id = $1 AND user_id = $2', [topicId, req.user.id]);
@@ -10,10 +11,17 @@ export const getNotes = async (req, res) => {
             return res.status(404).json({ error: 'Topic not found or access denied' });
         }
 
-        const result = await pool.query(
-            'SELECT * FROM notes WHERE topic_id = $1 ORDER BY created_at ASC',
-            [topicId]
-        );
+        let query = 'SELECT * FROM notes WHERE topic_id = $1';
+        const queryParams = [topicId];
+
+        if (searchTerm) {
+            queryParams.push(`%${searchTerm}%`);
+            query += ` AND content ILIKE $${queryParams.length}`; // Add search condition
+        }
+
+        query += ' ORDER BY created_at ASC'; // Always order by created_at
+
+        const result = await pool.query(query, queryParams);
         res.json(result.rows);
     } catch (error) {
         res.status(500).json({ error: error.message });

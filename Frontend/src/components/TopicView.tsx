@@ -25,6 +25,7 @@ const TopicView = () => {
   const [error, setError] = useState<string | null>(null);
   const [editingNoteId, setEditingNoteId] = useState<number | null>(null);
   const [editEditorContent, setEditEditorContent] = useState<string>('');
+  const [searchTerm, setSearchTerm] = useState<string>('');
 
   const createEditor = (initialContent: string, onUpdateCallback: (editor: any) => void) => useEditor({
     extensions: [
@@ -78,7 +79,7 @@ const TopicView = () => {
       const topicData = await res.json();
       setTopicTitle(topicData.title);
 
-      const notesRes = await fetch(`${API_BASE}/api/notes/${topicId}`, {
+      const notesRes = await fetch(`${API_BASE}/api/notes/${topicId}${searchTerm ? `?searchTerm=${searchTerm}` : ''}`, {
         headers: authHeaders,
         signal,
       });
@@ -98,7 +99,7 @@ const TopicView = () => {
     } finally {
       setLoading(false);
     }
-  }, [topicId, authHeaders, navigate]);
+  }, [topicId, authHeaders, navigate, searchTerm]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -214,6 +215,38 @@ const TopicView = () => {
         <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600 mb-6">
           {topicTitle}
         </h1>
+
+        <div className="relative mb-6">
+          <input
+            type="text"
+            placeholder="Search notes in this topic..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 pl-10 pr-10 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+          />
+          {searchTerm && (
+            <button
+              onClick={() => setSearchTerm('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+            >
+              &times;
+            </button>
+          )}
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </div>
+        </div>
 
         {error && (
           <div className="mb-6 rounded-lg bg-red-500/10 border border-red-500/30 p-4 text-red-300">
