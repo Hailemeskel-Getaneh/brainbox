@@ -4,6 +4,10 @@ import { Plus, Trash2, ArrowLeft, Loader2, Pencil } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
+import { CodeBlockLowlight } from '@tiptap/extension-code-block';
+import { common, createLowlight } from 'lowlight';
+
+const lowlight = createLowlight(common);
 
 interface Note {
   id: number;
@@ -34,6 +38,7 @@ const TopicView = () => {
   const createEditor = (initialContent: string, onUpdateCallback: (editor: any) => void) => useEditor({
     extensions: [
       StarterKit,
+      CodeBlockLowlight.configure({ lowlight }),
     ],
     content: initialContent,
     onUpdate: ({ editor }) => {

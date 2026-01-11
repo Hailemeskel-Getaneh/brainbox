@@ -64,3 +64,110 @@ body {
 .animate-shake {
   animation: shake 0.5s;
 }
+
+/* Tiptap Code Block Lowlight Styling */
+.ProseMirror .hljs {
+  display: block;
+  overflow-x: auto;
+  padding: 0.8em 1em;
+  background: #2d2d2d; /* Dark background for code blocks */
+  color: #cccccc; /* Light text color */
+  border-radius: 0.5em;
+}
+
+.ProseMirror .hljs-comment,
+.ProseMirror .hljs-quote {
+  color: #888888;
+  font-style: italic;
+}
+
+.ProseMirror .hljs-keyword,
+.ProseMirror .hljs-selector-tag,
+.ProseMirror .hljs-literal,
+.ProseMirror .hljs-doctag,
+.ProseMirror .hljs-title,
+.ProseMirror .hljs-section {
+  color: #cc99cc; /* Purple for keywords, etc. */
+}
+
+.ProseMirror .hljs-string,
+.ProseMirror .hljs-regexp,
+.ProseMirror .hljs-symbol,
+.ProseMirror .hljs-variable,
+.ProseMirror .hljs-template-variable,
+.ProseMirror .hljs-link,
+.ProseMirror .hljs-selector-attr,
+.ProseMirror .hljs-selector-pseudo {
+  color: #7f9f7f; /* Green for strings, etc. */
+}
+
+.ProseMirror .hljs-number,
+.ProseMirror .hljs-bullet,
+.ProseMirror .hljs-subst,
+.ProseMirror .hljs-meta,
+.ProseMirror .hljs-tag {
+  color: #f99157; /* Orange for numbers, etc. */
+}
+
+.ProseMirror .hljs-built_in,
+.ProseMirror .hljs-builtin-name,
+.ProseMirror .hljs-attr,
+.ProseMirror .hljs-attribute {
+  color: #f0c674; /* Yellow for built-ins, attributes */
+}
+
+.ProseMirror .hljs-deletion {
+  background: #5c3c3c;
+  color: #cccccc;
+}
+
+.ProseMirror .hljs-addition {
+  background: #3c5c3c;
+  color: #cccccc;
+}
+
+.ProseMirror .hljs-emphasis {
+  font-style: italic;
+}
+
+.ProseMirror .hljs-strong {
+  font-weight: bold;
+}
+
+.ProseMirror .hljs-formula,
+.ProseMirror .hljs-class .ProseMirror .hljs-title {
+  font-style: italic;
+}
+
+.ProseMirror .hljs-name,
+.ProseMirror .hljs-selector-id,
+.ProseMirror .hljs-selector-class {
+  color: #f0c674; /* Yellow for class/id selectors */
+}
+
+.ProseMirror .hljs-type,
+.ProseMirror .hljs-selector-class {
+  color: #8abeb7; /* Aqua for types, etc. */
+}
+
+/* Ensure code blocks look nice inside ProseMirror */
+.ProseMirror pre {
+  padding: 0;
+  margin: 0 0 1em 0;
+  border-radius: 0.5em;
+  font-family: 'Fira Code', 'JetBrains Mono', monospace;
+  font-size: 0.9em;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.ProseMirror code {
+  font-family: 'Fira Code', 'JetBrains Mono', monospace;
+  font-size: 0.9em;
+  padding: 0.1em 0.3em;
+  border-radius: 0.3em;
+  background-color: rgba(125, 125, 125, 0.2);
+  color: #e0e0e0;
+}
+
