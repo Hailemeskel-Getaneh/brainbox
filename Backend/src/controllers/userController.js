@@ -50,3 +50,73 @@ export const login = async (req, res) => {
         res.status(500).json({ error: 'Server error' });
     }
 };
+
+export const getUserProfile = async (req, res) => {
+    try {
+        const user = await pool.query('SELECT id, username, email FROM users WHERE id = $1', [req.user.id]);
+        if (user.rows.length === 0) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        res.json(user.rows[0]);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Server error' });
+    }
+};
+
+export const updateUserProfile = async (req, res) => {
+    const { username, email } = req.body;
+    const userId = req.user.id; // From authMiddleware
+
+    try {
+        // Check if new username/email already exists for another user
+        const userExists = await pool.query(
+            'SELECT id FROM users WHERE (email = $1 OR username = $2) AND id != $3',
+            [email, username, userId]
+        );
+        if (userExists.rows.length > 0) {
+            return res.status(400).json({ error: 'Username or email already taken by another user' });
+        }
+
+        const updatedUser = await pool.query(
+            'UPDATE users SET username = $1, email = $2 WHERE id = $3 RETURNING id, username, email',
+            [username, email, userId]
+        );
+
+        if (updatedUser.rows.length === 0) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        res.json(updatedUser.rows[0]);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Server error' });
+    }
+};
+
+export const changeUserPassword = async (req, res) => {
+    const { oldPassword, newPassword } = req.body;
+    const userId = req.user.id; // From authMiddleware
+
+    try {
+        const user = await pool.query('SELECT password_hash FROM users WHERE id = $1', [userId]);
+        if (user.rows.length === 0) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        const validPassword = await bcrypt.compare(oldPassword, user.rows[0].password_hash);
+        if (!validPassword) {
+            return res.status(400).json({ error: 'Invalid old password' });
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const newPasswordHash = await bcrypt.hash(newPassword, salt);
+
+        await pool.query('UPDATE users SET password_hash = $1 WHERE id = $2', [newPasswordHash, userId]);
+
+        res.json({ message: 'Password updated successfully' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Server error' });
+    }
+};
