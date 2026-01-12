@@ -28,7 +28,6 @@ const Dashboard = () => {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [searching, setSearching] = useState(false);
   const [stats, setStats] = useState({ totalTopics: 0, totalNotes: 0, notesLast7Days: 0 });
-  const [stats, setStats] = useState({ totalTopics: 0, totalNotes: 0, notesLast7Days: 0 });
 
   const navigate = useNavigate();
   const { token, logout, user } = useAuth();
@@ -37,6 +36,28 @@ const Dashboard = () => {
     () => ({ Authorization: `Bearer ${token}` }),
     [token]
   );
+
+  const fetchStats = useCallback(async (signal?: AbortSignal) => {
+    try {
+      // No setLoading(true) here as it's handled by overall dashboard loading
+      setError(null);
+      const res = await fetch(`${API_BASE}/api/dashboard/stats`, {
+        headers: authHeaders,
+        signal,
+      });
+
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || 'Failed to load dashboard statistics');
+      }
+      const data = await res.json();
+      setStats(data);
+    } catch (err: any) {
+      if (err.name !== 'AbortError') {
+        setError(err.message ?? 'Something went wrong fetching stats');
+      }
+    }
+  }, [authHeaders]);
 
   const fetchTopics = useCallback(async (signal?: AbortSignal) => {
     try {
@@ -68,6 +89,12 @@ const Dashboard = () => {
     }
     return () => controller.abort();
   }, [fetchTopics, searchTerm]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchStats(controller.signal);
+    return () => controller.abort();
+  }, [fetchStats]);
 
   useEffect(() => {
     if (!searchTerm.trim()) {
