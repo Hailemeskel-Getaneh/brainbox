@@ -402,9 +402,7 @@ const Dashboard = () => {
                           onClick={(e) => e.stopPropagation()} // Prevent navigating when clicking input
                           onKeyDown={(e) => {
                             if (e.key === 'Enter') {
-                              // Call save function here
-                              // handleSaveEditedTopic(topic.id, editingTopicTitle);
-                              console.log('Save edited topic'); // Placeholder
+                              handleEditTopic(topic.id, editingTopicTitle);
                             }
                             if (e.key === 'Escape') {
                               setEditingTopicId(null);
@@ -426,9 +424,7 @@ const Dashboard = () => {
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                // Call save function here
-                                // handleSaveEditedTopic(topic.id, editingTopicTitle);
-                                console.log('Save edited topic'); // Placeholder
+                                handleEditTopic(topic.id, editingTopicTitle);
                               }}
                               aria-label="Save topic title"
                               className="px-3 py-1 rounded-lg text-green-500 hover:text-green-400 hover:bg-green-400/10 text-sm"
