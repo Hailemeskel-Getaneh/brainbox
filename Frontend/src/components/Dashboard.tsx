@@ -111,9 +111,7 @@ const Dashboard = () => {
     const search = async () => {
       try {
         setSearching(true);
-        const res = await fetch(`${API_BASE}/api/notes/search/${searchTerm}`, {
-          headers: authHeaders,
-        });
+        const res = await fetch(`${API_BASE}/api/notes/search?q=${searchTerm}`);
         if (!res.ok) throw new Error('Search failed');
         const data = await res.json();
         setSearchResults(data);

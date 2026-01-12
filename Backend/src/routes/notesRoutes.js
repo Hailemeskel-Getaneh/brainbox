@@ -4,7 +4,7 @@ import authMiddleware from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-router.get('/search/:term', authMiddleware, searchNotes);
+router.get('/search', searchNotes);
 router.get('/tags/suggestions', authMiddleware, getTagsSuggestions);
 router.get('/:topicId', authMiddleware, getNotes);
 router.post('/:topicId', authMiddleware, createNote);
