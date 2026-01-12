@@ -312,8 +312,34 @@ const TopicView = () => {
               placeholder="Add tags (comma-separated)"
               value={newNoteTags}
               onChange={(e) => setNewNoteTags(e.target.value)}
+              onFocus={() => setShowNewNoteTagSuggestions(true)}
+              onBlur={() => setTimeout(() => setShowNewNoteTagSuggestions(false), 100)} // Delay to allow click
               className="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
             />
+            {showNewNoteTagSuggestions && tagSuggestions.length > 0 && (
+              <div className="absolute z-10 w-full bg-gray-800 border border-gray-700 rounded-lg mt-1 max-h-48 overflow-y-auto">
+                {tagSuggestions
+                  .filter(
+                    (tag) =>
+                      tag.toLowerCase().includes(newNoteTags.split(',').pop()?.trim().toLowerCase() || '') &&
+                      !(newNoteTags.split(',').map(t => t.trim()).includes(tag))
+                  )
+                  .map((tag) => (
+                    <div
+                      key={tag}
+                      onMouseDown={() => { // Use onMouseDown to prevent onBlur from firing first
+                        const currentTags = newNoteTags.split(',').map(t => t.trim()).filter(t => t.length > 0);
+                        currentTags.pop(); // Remove partial tag
+                        setNewNoteTags([...currentTags, tag].join(', ') + ', ');
+                        setShowNewNoteTagSuggestions(false);
+                      }}
+                      className="p-2 cursor-pointer hover:bg-gray-700"
+                    >
+                      {tag}
+                    </div>
+                  ))}
+              </div>
+            )}
             <div className="flex justify-end">
               <button
                 type="submit"
