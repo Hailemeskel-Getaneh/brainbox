@@ -166,9 +166,18 @@ const Dashboard = () => {
     }
   };
 
-  const handleDeleteTopic = async (id: number, e: React.MouseEvent) => {
+  const handleDeleteTopic = (id: number, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!confirm('Delete this topic permanently?')) return;
+    setTopicToDeleteId(id);
+    setIsConfirmingDelete(true);
+  };
+
+  const confirmDelete = async () => {
+    if (topicToDeleteId === null) return; // Should not happen
+
+    const id = topicToDeleteId;
+    setIsConfirmingDelete(false);
+    setTopicToDeleteId(null);
 
     const prev = topics;
     setTopics((t) => t.filter((x) => x.id !== id));
@@ -182,6 +191,11 @@ const Dashboard = () => {
     } catch {
       setTopics(prev); // rollback
     }
+  };
+
+  const cancelDelete = () => {
+    setIsConfirmingDelete(false);
+    setTopicToDeleteId(null);
   };
 
   const handleLogout = () => {
