@@ -28,6 +28,8 @@ const Dashboard = () => {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [searching, setSearching] = useState(false);
   const [stats, setStats] = useState({ totalTopics: 0, totalNotes: 0, notesLast7Days: 0 });
+  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
+  const [topicToDeleteId, setTopicToDeleteId] = useState<number | null>(null);
 
   const navigate = useNavigate();
   const { token, logout, user } = useAuth();
