@@ -7,6 +7,7 @@ interface Topic {
   id: number;
   title: string;
   created_at: string;
+  note_count: number;
 }
 
 interface SearchResult {
