@@ -90,7 +90,7 @@ export const updateUserProfile = async (req, res) => {
         res.json(updatedUser.rows[0]);
     } catch (err) {
         console.error(err);
-        res..status(500).json({ error: 'Server error' });
+        res.status(500).json({ error: 'Server error' });
     }
 };
 
