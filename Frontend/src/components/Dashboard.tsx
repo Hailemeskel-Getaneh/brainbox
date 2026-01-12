@@ -97,12 +97,6 @@ const Dashboard = () => {
   }, [fetchStats]);
 
   useEffect(() => {
-    const controller = new AbortController();
-    fetchStats(controller.signal);
-    return () => controller.abort();
-  }, [fetchStats]);
-
-  useEffect(() => {
     if (!searchTerm.trim()) {
       setSearchResults([]);
       return;
