@@ -2,12 +2,10 @@ import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Plus, Trash2, ArrowLeft, Loader2, Pencil } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { useEditor, EditorContent } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
-import { CodeBlockLowlight } from '@tiptap/extension-code-block';
-import { common, createLowlight } from 'lowlight';
-
-const lowlight = createLowlight(common);
+import SimpleMDE from 'react-simplemde-editor';
+import ReactMarkdown from 'react-markdown';
+import rehypeRaw from 'rehype-raw';
+import 'easymde/dist/easymde.min.css';
 
 interface Note {
   id: number;
@@ -25,6 +23,7 @@ const TopicView = () => {
 
   const [topicTitle, setTopicTitle] = useState('Loading...');
   const [notes, setNotes] = useState<Note[]>([]);
+  const [newNoteContent, setNewNoteContent] = useState('');
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -37,40 +36,6 @@ const TopicView = () => {
   const [tagSuggestions, setTagSuggestions] = useState<string[]>([]);
   const [showNewNoteTagSuggestions, setShowNewNoteTagSuggestions] = useState(false);
   const [showEditingNoteTagSuggestions, setShowEditingNoteTagSuggestions] = useState(false);
-
-  const createEditor = (initialContent: string, onUpdateCallback: (editor: any) => void) => useEditor({
-    extensions: [
-      StarterKit,
-      CodeBlockLowlight.configure({ lowlight }),
-    ],
-    content: initialContent,
-    onUpdate: ({ editor }) => {
-      onUpdateCallback(editor);
-    },
-  });
-
-  const mainEditor = createEditor('', (editor) => {
-    // Main editor's onUpdate logic
-  });
-
-  const editEditor = createEditor(editEditorContent, (editor) => {
-    setEditEditorContent(editor.getHTML());
-  });
-
-  useEffect(() => {
-    if (editingNoteId !== null) {
-      const noteToEdit = notes.find(note => note.id === editingNoteId);
-      if (noteToEdit) {
-        editEditor?.commands.setContent(noteToEdit.content);
-        setEditEditorContent(noteToEdit.content); // Ensure state is aligned
-        setEditingNoteTags(noteToEdit.tags?.join(', ') || ''); // Populate editing tags
-      }
-    } else {
-      editEditor?.commands.clearContent();
-      setEditEditorContent('');
-      setEditingNoteTags(''); // Clear editing tags
-    }
-  }, [editingNoteId, notes, editEditor]);
 
   const authHeaders = useMemo(
     () => ({ Authorization: `Bearer ${token}` }),
@@ -130,56 +95,54 @@ const TopicView = () => {
     return () => controller.abort();
   }, [fetchNotes]);
 
-      const handleCreateNote = async (e: React.FormEvent) => {
-      e.preventDefault();
-      const content = mainEditor?.getHTML();
-      if (!content || mainEditor?.isEmpty) return;
-      if (!topicId) return;
-  
-      const tagsArray = newNoteTags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
-  
-      try {
-        setSubmitting(true);
-        setError(null);
-  
-        // Optimistic UI update
-        const optimisticNote: Note = {
-          id: Date.now(),
-          topic_id: parseInt(topicId),
-          content: content,
-          created_at: new Date().toISOString(),
-          tags: tagsArray, // Include tags in optimistic update
-        };
-        setNotes((prev) => [...prev, optimisticNote]);
-        mainEditor?.commands.clearContent(); // Clear main editor content
-        setNewNoteTags(''); // Clear new note tags
-  
-        const res = await fetch(`${API_BASE}/api/notes/${topicId}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            ...authHeaders,
-          },
-          body: JSON.stringify({ content, tags: tagsArray }), // Send tags to backend
-        });
-  
-        if (!res.ok) {
-          const errData = await res.json();
-          throw new Error(errData.error || 'Failed to create note');
-        }
-        await fetchNotes(); // Re-fetch to get accurate data and ID
-      } catch (err: any) {
-        setError(err.message ?? 'Unable to create note');
-        // Rollback optimistic update on error
-        if (topicId) fetchNotes();
-      } finally {
-        setSubmitting(false);
-      }
-    };
-  const handleUpdateNote = async (id: number, content: string, tags?: string[]) => {
-    if (!topicId) return; // Should not happen as notes are topic-specific
+  const handleCreateNote = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newNoteContent.trim()) return;
+    if (!topicId) return;
+
+    const tagsArray = newNoteTags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
+
     try {
-      setSubmitting(true); // Indicate submission in progress
+      setSubmitting(true);
+      setError(null);
+
+      const optimisticNote: Note = {
+        id: Date.now(),
+        content: newNoteContent,
+        created_at: new Date().toISOString(),
+        tags: tagsArray,
+      };
+      setNotes((prev) => [...prev, optimisticNote]);
+      setNewNoteContent('');
+      setNewNoteTags('');
+
+      const res = await fetch(`${API_BASE}/api/notes/${topicId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...authHeaders,
+        },
+        body: JSON.stringify({ content: newNoteContent, tags: tagsArray }),
+      });
+
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || 'Failed to create note');
+      }
+      await fetchNotes();
+    } catch (err: any) {
+      setError(err.message ?? 'Unable to create note');
+      if (topicId) fetchNotes();
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleUpdateNote = async (id: number) => {
+    if (!topicId) return;
+    const tagsArray = editingNoteTags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
+    try {
+      setSubmitting(true);
       setError(null);
 
       const res = await fetch(`${API_BASE}/api/notes/${id}`, {
@@ -188,7 +151,7 @@ const TopicView = () => {
           'Content-Type': 'application/json',
           ...authHeaders,
         },
-        body: JSON.stringify({ content, tags }),
+        body: JSON.stringify({ content: editEditorContent, tags: tagsArray }),
       });
 
       if (!res.ok) {
@@ -196,13 +159,13 @@ const TopicView = () => {
         throw new Error(errData.error || 'Failed to update note');
       }
 
-      setEditingNoteId(null); // Exit editing mode
-      setEditEditorContent(''); // Clear the editing content
-      await fetchNotes(); // Re-fetch to get updated data
+      setEditingNoteId(null);
+      setEditEditorContent('');
+      await fetchNotes();
     } catch (err: any) {
       setError(err.message ?? 'Unable to update note');
     } finally {
-      setSubmitting(false); // End submission
+      setSubmitting(false);
     }
   };
 
@@ -224,7 +187,7 @@ const TopicView = () => {
       }
     } catch (err: any) {
       setError(err.message ?? 'Unable to delete note');
-      setNotes(prevNotes); // Rollback
+      setNotes(prevNotes);
     }
   };
 
@@ -291,7 +254,6 @@ const TopicView = () => {
             </button>
           )}
           <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-            {/* Tag icon or similar */}
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5.99C17.65 3 21 6.35 21 10c0 4.63-3.37 8-8 8H6c-3.65 0-7-3.35-7-7 0-3.65 3.35-7 7-7zm0 14h10c3.35 0 6-2.65 6-6s-2.65-6-6-6H7C3.35 6 0 8.65 0 12s2.65 6 6 6z" />
             </svg>
@@ -306,14 +268,14 @@ const TopicView = () => {
 
         <div className="mb-8 p-4 bg-gray-800 rounded-lg shadow-lg">
           <form onSubmit={handleCreateNote} className="flex flex-col gap-4">
-            <EditorContent editor={mainEditor} className="bg-gray-700 rounded-md p-3 min-h-[100px] focus-within:ring-2 focus-within:ring-blue-500 transition" />
+            <SimpleMDE value={newNoteContent} onChange={setNewNoteContent} />
             <input
               type="text"
               placeholder="Add tags (comma-separated)"
               value={newNoteTags}
               onChange={(e) => setNewNoteTags(e.target.value)}
               onFocus={() => setShowNewNoteTagSuggestions(true)}
-              onBlur={() => setTimeout(() => setShowNewNoteTagSuggestions(false), 100)} // Delay to allow click
+              onBlur={() => setTimeout(() => setShowNewNoteTagSuggestions(false), 100)}
               className="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
             />
             {showNewNoteTagSuggestions && tagSuggestions.length > 0 && (
@@ -327,9 +289,9 @@ const TopicView = () => {
                   .map((tag) => (
                     <div
                       key={tag}
-                      onMouseDown={() => { // Use onMouseDown to prevent onBlur from firing first
+                      onMouseDown={() => {
                         const currentTags = newNoteTags.split(',').map(t => t.trim()).filter(t => t.length > 0);
-                        currentTags.pop(); // Remove partial tag
+                        currentTags.pop();
                         setNewNoteTags([...currentTags, tag].join(', ') + ', ');
                         setShowNewNoteTagSuggestions(false);
                       }}
@@ -343,7 +305,7 @@ const TopicView = () => {
             <div className="flex justify-end">
               <button
                 type="submit"
-                disabled={submitting || mainEditor?.isEmpty}
+                disabled={submitting || !newNoteContent.trim()}
                 className="bg-blue-700 hover:bg-blue-500 disabled:opacity-50 px-6 py-3 rounded-lg font-semibold flex items-center gap-2"
               >
                 {submitting ? <Loader2 className="animate-spin" size={18} /> : <Plus size={18} />}
@@ -366,29 +328,24 @@ const TopicView = () => {
             {notes.map((note) => (
               <div key={note.id} className="bg-gray-800/50 p-4 rounded-lg border border-gray-700">
                 {editingNoteId === note.id ? (
-                  // Editing mode
                   <form onSubmit={(e) => {
                     e.preventDefault();
-                    if (editEditor && !editEditor.isEmpty && editingNoteId !== null) {
-                      const tagsArray = editingNoteTags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
-                      handleUpdateNote(editingNoteId, editEditor.getHTML(), tagsArray);
+                    if (editingNoteId !== null) {
+                      handleUpdateNote(editingNoteId);
                     }
                   }} className="flex flex-col gap-4">
-                    <EditorContent
-                      editor={editEditor}
-                      className="bg-gray-700 rounded-md p-3 min-h-[100px] focus-within:ring-2 focus-within:ring-blue-500 transition"
-                    />
+                    <SimpleMDE value={editEditorContent} onChange={setEditEditorContent} />
                     <input
                       type="text"
                       placeholder="Add tags (comma-separated)"
                       value={editingNoteTags}
                       onChange={(e) => setEditingNoteTags(e.target.value)}
                       onFocus={() => setShowEditingNoteTagSuggestions(true)}
-                      onBlur={() => setTimeout(() => setShowEditingNoteTagSuggestions(false), 100)} // Delay to allow click
+                      onBlur={() => setTimeout(() => setShowEditingNoteTagSuggestions(false), 100)}
                       className="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
                     />
                     {showEditingNoteTagSuggestions && editingNoteTags && tagSuggestions.length > 0 && (
-                      <div className="relative"> {/* Added relative positioning */}
+                      <div className="relative">
                         <div className="absolute z-10 w-full bg-gray-800 border border-gray-700 rounded-lg mt-1 max-h-48 overflow-y-auto">
                           {tagSuggestions
                             .filter(
@@ -399,9 +356,9 @@ const TopicView = () => {
                             .map((tag) => (
                               <div
                                 key={tag}
-                                onMouseDown={() => { // Use onMouseDown to prevent onBlur from firing first
+                                onMouseDown={() => {
                                   const currentTags = editingNoteTags.split(',').map(t => t.trim()).filter(t => t.length > 0);
-                                  currentTags.pop(); // Remove partial tag
+                                  currentTags.pop();
                                   setEditingNoteTags([...currentTags, tag].join(', ') + ', ');
                                   setShowEditingNoteTagSuggestions(false);
                                 }}
@@ -427,7 +384,7 @@ const TopicView = () => {
                       </button>
                       <button
                         type="submit"
-                        disabled={!editEditor || editEditor.isEmpty}
+                        disabled={!editEditorContent.trim()}
                         className="bg-green-700 hover:bg-green-500 disabled:opacity-50 px-4 py-2 rounded-lg font-semibold"
                       >
                         Save
@@ -435,12 +392,10 @@ const TopicView = () => {
                     </div>
                   </form>
                 ) : (
-                  // View mode
                   <>
-                    <div
-                      className="prose prose-invert max-w-none text-gray-300"
-                      dangerouslySetInnerHTML={{ __html: note.content }}
-                    />
+                    <ReactMarkdown rehypePlugins={[rehypeRaw]} className="prose prose-invert max-w-none text-gray-300">
+                      {note.content}
+                    </ReactMarkdown>
                     {note.tags && note.tags.length > 0 && (
                       <div className="flex flex-wrap gap-2 mt-2">
                         {note.tags.map((tag, index) => (
@@ -464,6 +419,7 @@ const TopicView = () => {
                           onClick={() => {
                             setEditingNoteId(note.id);
                             setEditEditorContent(note.content);
+                            setEditingNoteTags(note.tags?.join(', ') || '');
                           }}
                           aria-label="Edit note"
                           className="text-gray-500 hover:text-blue-400 p-1 rounded-full hover:bg-blue-400/10"
