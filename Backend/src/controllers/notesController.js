@@ -171,3 +171,34 @@ export const getAllNotesForUser = async (req, res) => {
     }
 };
 
+export const getNoteById = async (req, res) => {
+    const { id } = req.params;
+    const userId = req.user.id;
+
+    try {
+        const result = await pool.query(
+            `SELECT
+                n.id,
+                n.content,
+                n.tags,
+                n.created_at,
+                n.topic_id,
+                t.title AS topic_title
+            FROM notes n
+            JOIN topics t ON n.topic_id = t.id
+            WHERE n.id = $1 AND t.user_id = $2`,
+            [id, userId]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Note not found or access denied' });
+        }
+
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Server error fetching note' });
+    }
+};
+
+
