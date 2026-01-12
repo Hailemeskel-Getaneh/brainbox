@@ -39,3 +39,26 @@ export const deleteTopic = async (req, res) => {
     }
 };
 
+export const updateTopic = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { title } = req.body;
+
+        // Verify topic ownership
+        const topicCheck = await pool.query('SELECT * FROM topics WHERE id = $1 AND user_id = $2', [id, req.user.id]);
+        if (topicCheck.rows.length === 0) {
+            return res.status(404).json({ error: 'Topic not found or access denied' });
+        }
+
+        const result = await pool.query(
+            'UPDATE topics SET title = $1 WHERE id = $2 RETURNING *',
+            [title, id]
+        );
+
+        res.json(result.rows[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+
