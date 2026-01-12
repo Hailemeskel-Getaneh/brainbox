@@ -145,3 +145,29 @@ export const getTagsSuggestions = async (req, res) => {
         res.status(500).json({ error: 'Server error fetching tag suggestions' });
     }
 };
+
+export const getAllNotesForUser = async (req, res) => {
+    const userId = req.user.id;
+
+    try {
+        const result = await pool.query(
+            `SELECT
+                n.id,
+                n.content,
+                n.tags,
+                n.created_at,
+                n.topic_id,
+                t.title AS topic_title
+            FROM notes n
+            JOIN topics t ON n.topic_id = t.id
+            WHERE t.user_id = $1
+            ORDER BY n.created_at DESC`,
+            [userId]
+        );
+        res.json(result.rows);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Server error fetching all notes' });
+    }
+};
+
