@@ -207,6 +207,23 @@ const Dashboard = () => {
 
         </header>
 
+        {/* --- Dashboard Statistics --- */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+          <div className="bg-gray-800/50 p-6 rounded-lg border border-gray-700">
+            <h3 className="text-sm font-medium text-gray-400 mb-2">Total Topics</h3>
+            <p className="text-3xl font-bold text-blue-400">{stats.totalTopics}</p>
+          </div>
+          <div className="bg-gray-800/50 p-6 rounded-lg border border-gray-700">
+            <h3 className="text-sm font-medium text-gray-400 mb-2">Total Notes</h3>
+            <p className="text-3xl font-bold text-purple-400">{stats.totalNotes}</p>
+          </div>
+          <div className="bg-gray-800/50 p-6 rounded-lg border border-gray-700">
+            <h3 className="text-sm font-medium text-gray-400 mb-2">Notes Last 7 Days</h3>
+            <p className="text-3xl font-bold text-green-400">{stats.notesLast7Days}</p>
+          </div>
+        </div>
+        {/* --- End Dashboard Statistics --- */}
+
         <div className="mb-10 flex gap-4">
           <div className="relative flex-1">
             <input
