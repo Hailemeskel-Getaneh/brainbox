@@ -27,6 +27,8 @@ const Dashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [searching, setSearching] = useState(false);
+  const [stats, setStats] = useState({ totalTopics: 0, totalNotes: 0, notesLast7Days: 0 });
+  const [stats, setStats] = useState({ totalTopics: 0, totalNotes: 0, notesLast7Days: 0 });
 
   const navigate = useNavigate();
   const { token, logout, user } = useAuth();
