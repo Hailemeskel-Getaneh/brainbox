@@ -354,6 +354,25 @@ const Dashboard = () => {
           </div>
         ) : (
           <>
+            <div className="relative mb-10">
+              <input
+                type="search"
+                value={topicSearchTerm}
+                onChange={(e) => setTopicSearchTerm(e.target.value)}
+                placeholder="Search your topics..."
+                className="w-full bg-gray-800 border border-gray-700 rounded-lg pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
+              {topicSearchTerm && (
+                <button
+                  onClick={() => setTopicSearchTerm('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                >
+                  &times;
+                </button>
+              )}
+            </div>
+
             <form onSubmit={handleCreateTopic} className="mb-10 flex gap-4">
               <input
                 value={newTopic}
