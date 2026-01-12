@@ -1,4 +1,4 @@
-import bcrypt from 'bcryptjs';
+import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import pool from '../db/index.js';
 
@@ -19,7 +19,7 @@ export const register = async (req, res) => {
             [username, email, passwordHash]
         );
 
-        const token = jwt.sign({ id: newUser.rows[0].id }, process.env.JWT_SECRET, { expiresIn: '1d' });
+        const token = jwt.sign({ id: newUser.rows[0].id }, "your_jwt_secret", { expiresIn: '1d' });
 
         res.status(201).json({ user: newUser.rows[0], token });
     } catch (err) {
@@ -42,7 +42,7 @@ export const login = async (req, res) => {
             return res.status(400).json({ error: 'Invalid credentials' });
         }
 
-        const token = jwt.sign({ id: user.rows[0].id }, process.env.JWT_SECRET, { expiresIn: '1d' });
+        const token = jwt.sign({ id: user.rows[0].id }, "your_jwt_secret", { expiresIn: '1d' });
 
         res.json({ user: { id: user.rows[0].id, username: user.rows[0].username, email: user.rows[0].email }, token });
     } catch (err) {
@@ -90,7 +90,7 @@ export const updateUserProfile = async (req, res) => {
         res.json(updatedUser.rows[0]);
     } catch (err) {
         console.error(err);
-        res.status(500).json({ error: 'Server error' });
+        res..status(500).json({ error: 'Server error' });
     }
 };
 
@@ -115,39 +115,6 @@ export const changeUserPassword = async (req, res) => {
         await pool.query('UPDATE users SET password_hash = $1 WHERE id = $2', [newPasswordHash, userId]);
 
         res.json({ message: 'Password updated successfully' });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Server error' });
-    }
-};
-
-export const getDashboardStats = async (req, res) => {
-    const userId = req.user.id;
-
-    try {
-        const totalTopicsResult = await pool.query(
-            'SELECT COUNT(*) FROM topics WHERE user_id = $1',
-            [userId]
-        );
-        const totalTopics = parseInt(totalTopicsResult.rows[0].count, 10);
-
-        const totalNotesResult = await pool.query(
-            'SELECT COUNT(*) FROM notes n JOIN topics t ON n.topic_id = t.id WHERE t.user_id = $1',
-            [userId]
-        );
-        const totalNotes = parseInt(totalNotesResult.rows[0].count, 10);
-
-        const notesLast7DaysResult = await pool.query(
-            'SELECT COUNT(*) FROM notes n JOIN topics t ON n.topic_id = t.id WHERE t.user_id = $1 AND n.created_at >= NOW() - INTERVAL \'7 days\'',
-            [userId]
-        );
-        const notesLast7Days = parseInt(notesLast7DaysResult.rows[0].count, 10);
-
-        res.json({
-            totalTopics,
-            totalNotes,
-            notesLast7Days,
-        });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Server error' });

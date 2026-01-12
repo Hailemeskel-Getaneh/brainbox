@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { app } from './app.js';
 import pool from './db/index.js';
 import { createTables } from './db/init.js';
