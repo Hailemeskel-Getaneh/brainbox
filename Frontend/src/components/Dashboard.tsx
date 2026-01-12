@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Trash2, ArrowRight, LogOut, Loader2, Search } from 'lucide-react';
+import { Plus, Trash2, ArrowRight, LogOut, Loader2, Search, User } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 interface Topic {
