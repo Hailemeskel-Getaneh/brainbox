@@ -120,3 +120,69 @@ export const changeUserPassword = async (req, res) => {
         res.status(500).json({ error: 'Server error' });
     }
 };
+
+export const getDashboardStats = async (req, res) => {
+    const userId = req.user.id;
+
+    try {
+        const totalTopicsResult = await pool.query(
+            'SELECT COUNT(*) FROM topics WHERE user_id = $1',
+            [userId]
+        );
+        const totalTopics = parseInt(totalTopicsResult.rows[0].count, 10);
+
+        const totalNotesResult = await pool.query(
+            'SELECT COUNT(*) FROM notes n JOIN topics t ON n.topic_id = t.id WHERE t.user_id = $1',
+            [userId]
+        );
+        const totalNotes = parseInt(totalNotesResult.rows[0].count, 10);
+
+        const notesLast7DaysResult = await pool.query(
+            'SELECT COUNT(*) FROM notes n JOIN topics t ON n.topic_id = t.id WHERE t.user_id = $1 AND n.created_at >= NOW() - INTERVAL \'7 days\'',
+            [userId]
+        );
+        const notesLast7Days = parseInt(notesLast7DaysResult.rows[0].count, 10);
+
+        res.json({
+            totalTopics,
+            totalNotes,
+            notesLast7Days,
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Server error' });
+    }
+};
+
+export const getDashboardStats = async (req, res) => {
+    const userId = req.user.id;
+
+    try {
+        const totalTopicsResult = await pool.query(
+            'SELECT COUNT(*) FROM topics WHERE user_id = $1',
+            [userId]
+        );
+        const totalTopics = parseInt(totalTopicsResult.rows[0].count, 10);
+
+        const totalNotesResult = await pool.query(
+            'SELECT COUNT(*) FROM notes n JOIN topics t ON n.topic_id = t.id WHERE t.user_id = $1',
+            [userId]
+        );
+        const totalNotes = parseInt(totalNotesResult.rows[0].count, 10);
+
+        const notesLast7DaysResult = await pool.query(
+            'SELECT COUNT(*) FROM notes n JOIN topics t ON n.topic_id = t.id WHERE t.user_id = $1 AND n.created_at >= NOW() - INTERVAL \'7 days\'',
+            [userId]
+        );
+        const notesLast7Days = parseInt(notesLast7DaysResult.rows[0].count, 10);
+
+        res.json({
+            totalTopics,
+            totalNotes,
+            notesLast7Days,
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Server error' });
+    }
+};
