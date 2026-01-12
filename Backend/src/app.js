@@ -14,7 +14,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use('/api/auth', userRoutes);
+app.use('/api/users', userRoutes);
 app.use('/api/topics', authMiddleware, topicsRoutes);
 app.use('/api/notes', authMiddleware, notesRoutes);
 
