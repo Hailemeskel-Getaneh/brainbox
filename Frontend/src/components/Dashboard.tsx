@@ -200,6 +200,45 @@ const Dashboard = () => {
     setTopicToDeleteId(null);
   };
 
+  const handleEditTopic = async (id: number, newTitle: string) => {
+    if (!newTitle.trim()) {
+      setError('Topic title cannot be empty.');
+      return;
+    }
+    if (!token) return;
+
+    try {
+      setSubmitting(true);
+      setError(null);
+
+      const res = await fetch(`${API_BASE}/api/topics/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          ...authHeaders,
+        },
+        body: JSON.stringify({ title: newTitle }),
+      });
+
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || 'Failed to update topic title');
+      }
+
+      setTopics((prevTopics) =>
+        prevTopics.map((topic) =>
+          topic.id === id ? { ...topic, title: newTitle } : topic
+        )
+      );
+      setEditingTopicId(null);
+      setEditingTopicTitle('');
+    } catch (err: any) {
+      setError(err.message ?? 'Unable to update topic title');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const handleLogout = () => {
     logout();
     navigate('/login');
