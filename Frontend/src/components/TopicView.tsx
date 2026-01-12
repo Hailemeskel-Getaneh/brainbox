@@ -6,6 +6,7 @@ import SimpleMDE from 'react-simplemde-editor';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import 'easymde/dist/easymde.min.css';
+import { useTheme } from '../context/ThemeContext';
 
 interface Note {
   id: number;
@@ -20,6 +21,7 @@ const TopicView = () => {
   const { topicId } = useParams<{ topicId: string }>();
   const navigate = useNavigate();
   const { token } = useAuth();
+  const { theme } = useTheme();
 
   const [topicTitle, setTopicTitle] = useState('Loading...');
   const [notes, setNotes] = useState<Note[]>([]);
@@ -192,11 +194,11 @@ const TopicView = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-8">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white p-8">
       <div className="max-w-3xl mx-auto">
         <button
           onClick={() => navigate('/dashboard')}
-          className="flex items-center gap-2 text-blue-400 hover:text-blue-300 transition mb-6"
+          className="flex items-center gap-2 text-blue-500 dark:text-blue-400 hover:text-blue-600 dark:hover:text-blue-300 transition mb-6"
         >
           <ArrowLeft size={20} /> Back to Dashboard
         </button>
@@ -211,12 +213,12 @@ const TopicView = () => {
             placeholder="Search notes in this topic..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 pl-10 pr-10 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+            className="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg p-3 pl-10 pr-10 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
           />
           {searchTerm && (
             <button
               onClick={() => setSearchTerm('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-white"
             >
               &times;
             </button>
@@ -243,12 +245,12 @@ const TopicView = () => {
             placeholder="Filter by tags (comma-separated)"
             value={filterTags}
             onChange={(e) => setFilterTags(e.target.value)}
-            className="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 pl-10 pr-10 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+            className="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg p-3 pl-10 pr-10 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
           />
           {filterTags && (
             <button
               onClick={() => setFilterTags('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-white"
             >
               &times;
             </button>
@@ -266,9 +268,11 @@ const TopicView = () => {
           </div>
         )}
 
-        <div className="mb-8 p-4 bg-gray-800 rounded-lg shadow-lg">
+        <div className="mb-8 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
           <form onSubmit={handleCreateNote} className="flex flex-col gap-4">
-            <SimpleMDE value={newNoteContent} onChange={setNewNoteContent} />
+            <SimpleMDE value={newNoteContent} onChange={setNewNoteContent} options={{
+              theme: theme === 'light' ? 'light' : 'dark',
+            }} />
             <input
               type="text"
               placeholder="Add tags (comma-separated)"
@@ -276,10 +280,10 @@ const TopicView = () => {
               onChange={(e) => setNewNoteTags(e.target.value)}
               onFocus={() => setShowNewNoteTagSuggestions(true)}
               onBlur={() => setTimeout(() => setShowNewNoteTagSuggestions(false), 100)}
-              className="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+              className="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg p-3 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
             />
             {showNewNoteTagSuggestions && tagSuggestions.length > 0 && (
-              <div className="absolute z-10 w-full bg-gray-800 border border-gray-700 rounded-lg mt-1 max-h-48 overflow-y-auto">
+              <div className="absolute z-10 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg mt-1 max-h-48 overflow-y-auto">
                 {tagSuggestions
                   .filter(
                     (tag) =>
@@ -295,7 +299,7 @@ const TopicView = () => {
                         setNewNoteTags([...currentTags, tag].join(', ') + ', ');
                         setShowNewNoteTagSuggestions(false);
                       }}
-                      className="p-2 cursor-pointer hover:bg-gray-700"
+                      className="p-2 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700"
                     >
                       {tag}
                     </div>
@@ -306,7 +310,7 @@ const TopicView = () => {
               <button
                 type="submit"
                 disabled={submitting || !newNoteContent.trim()}
-                className="bg-blue-700 hover:bg-blue-500 disabled:opacity-50 px-6 py-3 rounded-lg font-semibold flex items-center gap-2"
+                className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-500 disabled:opacity-50 px-6 py-3 rounded-lg font-semibold flex items-center gap-2 text-white"
               >
                 {submitting ? <Loader2 className="animate-spin" size={18} /> : <Plus size={18} />}
                 Add Note
@@ -320,13 +324,13 @@ const TopicView = () => {
             <Loader2 className="animate-spin" size={36} />
           </div>
         ) : notes.length === 0 ? (
-          <div className="text-center py-20 text-gray-400">
+          <div className="text-center py-20 text-gray-500 dark:text-gray-400">
             No notes yet. Add your first note above.
           </div>
         ) : (
           <div className="space-y-4">
             {notes.map((note) => (
-              <div key={note.id} className="bg-gray-800/50 p-4 rounded-lg border border-gray-700">
+              <div key={note.id} className="bg-white dark:bg-gray-800/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                 {editingNoteId === note.id ? (
                   <form onSubmit={(e) => {
                     e.preventDefault();
@@ -334,7 +338,9 @@ const TopicView = () => {
                       handleUpdateNote(editingNoteId);
                     }
                   }} className="flex flex-col gap-4">
-                    <SimpleMDE value={editEditorContent} onChange={setEditEditorContent} />
+                    <SimpleMDE value={editEditorContent} onChange={setEditEditorContent} options={{
+                      theme: theme === 'light' ? 'light' : 'dark',
+                    }} />
                     <input
                       type="text"
                       placeholder="Add tags (comma-separated)"
@@ -342,11 +348,11 @@ const TopicView = () => {
                       onChange={(e) => setEditingNoteTags(e.target.value)}
                       onFocus={() => setShowEditingNoteTagSuggestions(true)}
                       onBlur={() => setTimeout(() => setShowEditingNoteTagSuggestions(false), 100)}
-                      className="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                      className="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg p-3 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
                     />
                     {showEditingNoteTagSuggestions && editingNoteTags && tagSuggestions.length > 0 && (
                       <div className="relative">
-                        <div className="absolute z-10 w-full bg-gray-800 border border-gray-700 rounded-lg mt-1 max-h-48 overflow-y-auto">
+                        <div className="absolute z-10 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg mt-1 max-h-48 overflow-y-auto">
                           {tagSuggestions
                             .filter(
                               (tag) =>
@@ -362,7 +368,7 @@ const TopicView = () => {
                                   setEditingNoteTags([...currentTags, tag].join(', ') + ', ');
                                   setShowEditingNoteTagSuggestions(false);
                                 }}
-                                className="p-2 cursor-pointer hover:bg-gray-700"
+                                className="p-2 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700"
                               >
                                 {tag}
                               </div>
@@ -378,14 +384,14 @@ const TopicView = () => {
                           setEditEditorContent('');
                           setEditingNoteTags('');
                         }}
-                        className="px-4 py-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-700 transition"
+                        className="px-4 py-2 rounded-lg text-gray-500 dark:text-gray-400 hover:text-gray-600 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-700 transition"
                       >
                         Cancel
                       </button>
                       <button
                         type="submit"
                         disabled={!editEditorContent.trim()}
-                        className="bg-green-700 hover:bg-green-500 disabled:opacity-50 px-4 py-2 rounded-lg font-semibold"
+                        className="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-500 disabled:opacity-50 px-4 py-2 rounded-lg font-semibold text-white"
                       >
                         Save
                       </button>
@@ -393,25 +399,25 @@ const TopicView = () => {
                   </form>
                 ) : (
                   <>
-                    <ReactMarkdown rehypePlugins={[rehypeRaw]} className="prose prose-invert max-w-none text-gray-300">
+                    <ReactMarkdown rehypePlugins={[rehypeRaw]} className="prose prose-invert max-w-none text-gray-700 dark:text-gray-300">
                       {note.content}
                     </ReactMarkdown>
                     {note.tags && note.tags.length > 0 && (
                       <div className="flex flex-wrap gap-2 mt-2">
                         {note.tags.map((tag, index) => (
-                          <span key={index} className="bg-blue-600/30 text-blue-300 text-xs px-2 py-1 rounded-full">
+                          <span key={index} className="bg-blue-500/10 text-blue-500 dark:bg-blue-600/30 dark:text-blue-300 text-xs px-2 py-1 rounded-full">
                             {tag}
                           </span>
                         ))}
                       </div>
                     )}
-                    <div className="flex justify-between items-center text-sm text-gray-500 mt-2">
+                    <div className="flex justify-between items-center text-sm text-gray-400 dark:text-gray-500 mt-2">
                       <span>{new Date(note.created_at).toLocaleString()}</span>
                       <div className="flex gap-2">
                         <button
                           onClick={() => handleDeleteNote(note.id)}
                           aria-label="Delete note"
-                          className="text-gray-500 hover:text-red-400 p-1 rounded-full hover:bg-red-400/10"
+                          className="text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 p-1 rounded-full hover:bg-red-400/10"
                         >
                           <Trash2 size={16} />
                         </button>
@@ -422,7 +428,7 @@ const TopicView = () => {
                             setEditingNoteTags(note.tags?.join(', ') || '');
                           }}
                           aria-label="Edit note"
-                          className="text-gray-500 hover:text-blue-400 p-1 rounded-full hover:bg-blue-400/10"
+                          className="text-gray-400 dark:text-gray-500 hover:text-blue-500 dark:hover:text-blue-400 p-1 rounded-full hover:bg-blue-400/10"
                         >
                           <Pencil size={16} />
                         </button>

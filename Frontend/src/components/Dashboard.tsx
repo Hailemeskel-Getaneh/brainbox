@@ -1,7 +1,8 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Trash2, ArrowRight, LogOut, Loader2, Search, User, Edit } from 'lucide-react';
+import { Plus, Trash2, ArrowRight, LogOut, Loader2, Search, User, Edit, Sun, Moon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 
 interface Topic {
   id: number;
@@ -37,6 +38,7 @@ const Dashboard = () => {
 
   const navigate = useNavigate();
   const { token, logout, user } = useAuth();
+  const { theme, toggleTheme } = useTheme();
 
   const authHeaders = useMemo(
     () => ({ Authorization: `Bearer ${token}` }),
@@ -77,8 +79,6 @@ const Dashboard = () => {
       if (!res.ok) throw new Error('Failed to load topics');
       const data = await res.json();
       setTopics(data);
-      
-      
     } catch (err: any) {
       if (err.name !== 'AbortError') {
         setError(err.message ?? 'Something went wrong');
@@ -130,7 +130,6 @@ const Dashboard = () => {
   }, [searchTerm, authHeaders]);
 
   const handleCreateTopic = async (e: React.FormEvent) => {
-
     e.preventDefault();
     if (!newTopic.trim()) return;
 
@@ -138,13 +137,11 @@ const Dashboard = () => {
       setSubmitting(true);
       setError(null);
 
-      // Optimistic UI
       const optimistic: Topic = {
-
         id: Date.now(),
         title: newTopic,
         created_at: new Date().toISOString(),
-
+        note_count: 0,
       };
       setTopics((prev) => [optimistic, ...prev]);
       setNewTopic('');
@@ -175,7 +172,7 @@ const Dashboard = () => {
   };
 
   const confirmDelete = async () => {
-    if (topicToDeleteId === null) return; // Should not happen
+    if (topicToDeleteId === null) return;
 
     const id = topicToDeleteId;
     setIsConfirmingDelete(false);
@@ -245,49 +242,55 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-8">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white p-8">
       <div className="max-w-5xl mx-auto">
         <header className="mb-12 flex flex-col md:flex-row md:justify-between md:items-center gap-6">
           <div>
             <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600 mb-2">
               My BrainBox
             </h1>
-            <p className="text-gray-400">Welcome back, {user?.username}</p>
+            <p className="text-gray-500 dark:text-gray-400">Welcome back, {user?.username}</p>
           </div>
 
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition"
-          >
-            <LogOut size={18} /> Logout
-          </button>
-
-          <button
-            onClick={() => navigate('/profile')}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition"
-          >
-            <User size={18} /> Profile
-          </button>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={toggleTheme}
+              className="flex items-center gap-2 px-4 py-2 bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 rounded-lg transition"
+            >
+              {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
+            </button>
+            <button
+              onClick={() => navigate('/profile')}
+              className="flex items-center gap-2 px-4 py-2 bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 rounded-lg transition"
+            >
+              <User size={18} /> Profile
+            </button>
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 px-4 py-2 bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 rounded-lg transition"
+            >
+              <LogOut size={18} /> Logout
+            </button>
+          </div>
         </header>
 
         {/* --- Dashboard Statistics --- */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-          <div className="bg-gray-800/50 p-6 rounded-lg border border-gray-700">
-            <h3 className="text-sm font-medium text-gray-400 mb-2">Total Topics</h3>
-            <p className="text-3xl font-bold text-blue-400">{stats.totalTopics}</p>
+          <div className="bg-white dark:bg-gray-800/50 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
+            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Total Topics</h3>
+            <p className="text-3xl font-bold text-blue-500 dark:text-blue-400">{stats.totalTopics}</p>
           </div>
-          <div className="bg-gray-800/50 p-6 rounded-lg border border-gray-700">
-            <h3 className="text-sm font-medium text-gray-400 mb-2">Total Notes</h3>
-            <p className="text-3xl font-bold text-purple-400">{stats.totalNotes}</p>
+          <div className="bg-white dark:bg-gray-800/50 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
+            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Total Notes</h3>
+            <p className="text-3xl font-bold text-purple-500 dark:text-purple-400">{stats.totalNotes}</p>
           </div>
-          <div className="bg-gray-800/50 p-6 rounded-lg border border-gray-700">
-            <h3 className="text-sm font-medium text-gray-400 mb-2">Notes Last 7 Days</h3>
-            <p className="text-3xl font-bold text-green-400">{stats.notesLast7Days}</p>
+          <div className="bg-white dark:bg-gray-800/50 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
+            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Notes Last 7 Days</h3>
+            <p className="text-3xl font-bold text-green-500 dark:text-green-400">{stats.notesLast7Days}</p>
           </div>
         </div>
         {/* --- End Dashboard Statistics --- */}
 
-        {/* Delete Confirmation Dialog */}
         {isConfirmingDelete && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-gray-800 p-6 rounded-lg shadow-xl border border-gray-700 max-w-sm mx-auto text-center">
@@ -318,7 +321,7 @@ const Dashboard = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search in all notes..."
-              className="w-full bg-gray-800 border border-gray-700 rounded-lg pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
             {searching && <Loader2 size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 animate-spin" />}
@@ -335,19 +338,19 @@ const Dashboard = () => {
             ) : searchResults.length > 0 ? (
               <div className="space-y-4">
                 {searchResults.map((note) => (
-                  <div key={note.id} className="bg-gray-800/50 p-4 rounded-lg border border-gray-700">
+                  <div key={note.id} className="bg-white dark:bg-gray-800/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                     <p
                       onClick={() => navigate(`/topic/${note.topic_id}`)}
-                      className="text-sm text-blue-400 mb-2 cursor-pointer hover:underline"
+                      className="text-sm text-blue-500 dark:text-blue-400 mb-2 cursor-pointer hover:underline"
                     >
                       in: {note.topic_title}
                     </p>
-                    <p className="text-gray-300">{note.content}</p>
+                    <p className="text-gray-700 dark:text-gray-300">{note.content}</p>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-gray-400 text-center py-10">No results found for "{searchTerm}".</p>
+              <p className="text-gray-500 dark:text-gray-400 text-center py-10">No results found for "{searchTerm}".</p>
             )}
           </div>
         ) : (
@@ -358,7 +361,7 @@ const Dashboard = () => {
                 value={topicSearchTerm}
                 onChange={(e) => setTopicSearchTerm(e.target.value)}
                 placeholder="Search your topics..."
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
               {topicSearchTerm && (
@@ -377,13 +380,13 @@ const Dashboard = () => {
                 onChange={(e) => setNewTopic(e.target.value)}
                 placeholder="Create a new topic…"
                 aria-label="New topic title"
-                className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="flex-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
 
               <button
                 type="submit"
                 disabled={!newTopic.trim() || submitting}
-                className="bg-blue-700 hover:bg-blue-500 disabled:opacity-50 px-6 py-3 rounded-lg font-semibold flex items-center gap-2"
+                className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-500 disabled:opacity-50 px-6 py-3 rounded-lg font-semibold flex items-center gap-2 text-white"
               >
                 {submitting ? <Loader2 className="animate-spin" size={18} /> : <Plus size={18} />}
                 Add Topic
@@ -401,7 +404,7 @@ const Dashboard = () => {
                 <Loader2 className="animate-spin" size={36} />
               </div>
             ) : topics.length === 0 ? (
-              <div className="text-center py-20 text-gray-400">
+              <div className="text-center py-20 text-gray-500 dark:text-gray-400">
                 No topics yet. Start by creating your first one.
               </div>
             ) : (
@@ -410,7 +413,7 @@ const Dashboard = () => {
                   <div
                     key={topic.id}
                     onClick={() => navigate(`/topic/${topic.id}`)}
-                    className="bg-gray-800/50 hover:bg-gray-800 border border-gray-700 rounded-xl p-6 cursor-pointer group transition hover:scale-[1.02]"
+                    className="bg-white dark:bg-gray-800/50 hover:bg-gray-50 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-6 cursor-pointer group transition hover:scale-[1.02]"
                   >
                     <div className="flex justify-between items-start mb-3">
                       {editingTopicId === topic.id ? (
@@ -418,7 +421,7 @@ const Dashboard = () => {
                           type="text"
                           value={editingTopicTitle}
                           onChange={(e) => setEditingTopicTitle(e.target.value)}
-                          onClick={(e) => e.stopPropagation()} // Prevent navigating when clicking input
+                          onClick={(e) => e.stopPropagation()}
                           onKeyDown={(e) => {
                             if (e.key === 'Enter') {
                               handleEditTopic(topic.id, editingTopicTitle);
@@ -428,11 +431,11 @@ const Dashboard = () => {
                               setEditingTopicTitle('');
                             }
                           }}
-                          className="flex-1 bg-gray-700 border border-gray-600 rounded-md p-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="flex-1 bg-gray-200 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md p-2 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                           autoFocus
                         />
                       ) : (
-                        <h2 className="text-lg font-semibold group-hover:text-blue-400">
+                        <h2 className="text-lg font-semibold group-hover:text-blue-500 dark:group-hover:text-blue-400">
                           {topic.title}
                         </h2>
                       )}
@@ -446,7 +449,7 @@ const Dashboard = () => {
                                 handleEditTopic(topic.id, editingTopicTitle);
                               }}
                               aria-label="Save topic title"
-                              className="px-3 py-1 rounded-lg text-green-500 hover:text-green-400 hover:bg-green-400/10 text-sm"
+                              className="px-3 py-1 rounded-lg text-green-600 dark:text-green-500 hover:text-green-700 dark:hover:text-green-400 hover:bg-green-400/10 text-sm"
                             >
                               Save
                             </button>
@@ -465,12 +468,12 @@ const Dashboard = () => {
                         ) : (
                           <button
                             onClick={(e) => {
-                              e.stopPropagation(); // Prevent navigating to topic view
+                              e.stopPropagation();
                               setEditingTopicId(topic.id);
                               setEditingTopicTitle(topic.title);
                             }}
                             aria-label="Edit topic title"
-                            className="text-gray-500 hover:text-blue-400 p-1 rounded-full hover:bg-blue-400/10"
+                            className="text-gray-500 hover:text-blue-500 dark:hover:text-blue-400 p-1 rounded-full hover:bg-blue-400/10"
                           >
                             <Edit size={16} />
                           </button>
@@ -478,17 +481,17 @@ const Dashboard = () => {
                         <button
                           onClick={(e) => handleDeleteTopic(topic.id, e)}
                           aria-label="Delete topic"
-                          className="text-gray-500 hover:text-red-400 p-1 rounded-full hover:bg-red-400/10"
+                          className="text-gray-500 hover:text-red-500 dark:hover:text-red-400 p-1 rounded-full hover:bg-red-400/10"
                         >
                           <Trash2 size={16} />
                         </button>
                       </div>
                     </div>
 
-                    <div className="flex justify-between items-center text-sm text-gray-500">
+                    <div className="flex justify-between items-center text-sm text-gray-400 dark:text-gray-500">
                       <span>{new Date(topic.created_at).toLocaleDateString()}</span>
-                      <span className="text-sm text-gray-400">{topic.note_count} Notes</span>
-                      <ArrowRight className="group-hover:text-blue-400 group-hover:translate-x-1 transition" size={18} />
+                      <span className="text-sm text-gray-600 dark:text-gray-400">{topic.note_count} Notes</span>
+                      <ArrowRight className="group-hover:text-blue-500 dark:group-hover:text-blue-400 group-hover:translate-x-1 transition" size={18} />
                     </div>
                   </div>
                 ))}
