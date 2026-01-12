@@ -246,6 +246,30 @@ const Dashboard = () => {
         </div>
         {/* --- End Dashboard Statistics --- */}
 
+        {/* Delete Confirmation Dialog */}
+        {isConfirmingDelete && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-gray-800 p-6 rounded-lg shadow-xl border border-gray-700 max-w-sm mx-auto text-center">
+              <h3 className="text-xl font-semibold text-white mb-4">Confirm Deletion</h3>
+              <p className="text-gray-300 mb-6">Are you sure you want to delete this topic permanently? This action cannot be undone.</p>
+              <div className="flex justify-center gap-4">
+                <button
+                  onClick={cancelDelete}
+                  className="px-5 py-2 rounded-lg border border-gray-600 text-gray-300 hover:bg-gray-700 transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  className="px-5 py-2 rounded-lg bg-red-600 text-white hover:bg-red-500 transition"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="mb-10 flex gap-4">
           <div className="relative flex-1">
             <input
