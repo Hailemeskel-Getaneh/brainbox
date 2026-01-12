@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Plus, Trash2, ArrowLeft, Loader2, Pencil } from 'lucide-react';
+import { Plus, Trash2, ArrowLeft, Loader2, Pencil, Download } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import SimpleMDE from 'react-simplemde-editor';
 import ReactMarkdown from 'react-markdown';
@@ -38,6 +38,7 @@ const TopicView = () => {
   const [tagSuggestions, setTagSuggestions] = useState<string[]>([]);
   const [showNewNoteTagSuggestions, setShowNewNoteTagSuggestions] = useState(false);
   const [showEditingNoteTagSuggestions, setShowEditingNoteTagSuggestions] = useState(false);
+  const [showExportOptions, setShowExportOptions] = useState(false);
 
   const authHeaders = useMemo(
     () => ({ Authorization: `Bearer ${token}` }),
@@ -193,15 +194,89 @@ const TopicView = () => {
     }
   };
 
+  const handleExport = (format: 'markdown' | 'text') => {
+    if (!notes.length) {
+      alert('No notes to export.');
+      return;
+    }
+
+    let fileContent = '';
+    let fileName = `${topicTitle}-notes`;
+    let mimeType = '';
+
+    if (format === 'markdown') {
+      fileContent = notes
+        .map((note) => {
+          const date = new Date(note.created_at).toLocaleString();
+          const tags = note.tags && note.tags.length > 0 ? `\nTags: ${note.tags.join(', ')}` : '';
+          return `## Note on ${date}\n${note.content}${tags}\n---`;
+        })
+        .join('\n\n');
+      fileName += '.md';
+      mimeType = 'text/markdown';
+    } else {
+      // Plain text
+      fileContent = notes
+        .map((note) => {
+          const date = new Date(note.created_at).toLocaleString();
+          const tags = note.tags && note.tags.length > 0 ? `\nTags: ${note.tags.join(', ')}` : '';
+          // Remove Markdown formatting for plain text
+          const plainTextContent = note.content.replace(/##|\*\*|__|\*|_|\[.*?\]\(.*?\)|\n/g, '').trim();
+          return `Note on ${date}:\n${plainTextContent}${tags}\n---`;
+        })
+        .join('\n\n');
+      fileName += '.txt';
+      mimeType = 'text/plain';
+    }
+
+    const blob = new Blob([fileContent], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    setShowExportOptions(false);
+  };
+
+
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white p-8">
       <div className="max-w-3xl mx-auto">
-        <button
-          onClick={() => navigate('/dashboard')}
-          className="flex items-center gap-2 text-blue-500 dark:text-blue-400 hover:text-blue-600 dark:hover:text-blue-300 transition mb-6"
-        >
-          <ArrowLeft size={20} /> Back to Dashboard
-        </button>
+        <div className="flex justify-between items-center mb-6">
+          <button
+            onClick={() => navigate('/dashboard')}
+            className="flex items-center gap-2 text-blue-500 dark:text-blue-400 hover:text-blue-600 dark:hover:text-blue-300 transition"
+          >
+            <ArrowLeft size={20} /> Back to Dashboard
+          </button>
+          <div className="relative">
+            <button
+              onClick={() => setShowExportOptions(!showExportOptions)}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-500 text-white rounded-lg transition"
+            >
+              <Download size={18} /> Export
+            </button>
+            {showExportOptions && (
+              <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-10">
+                <button
+                  onClick={() => handleExport('markdown')}
+                  className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+                >
+                  Export as Markdown
+                </button>
+                <button
+                  onClick={() => handleExport('text')}
+                  className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+                >
+                  Export as Plain Text
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
 
         <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600 mb-6">
           {topicTitle}
