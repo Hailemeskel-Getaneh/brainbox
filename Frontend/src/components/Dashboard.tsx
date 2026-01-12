@@ -205,6 +205,12 @@ const Dashboard = () => {
             <LogOut size={18} /> Logout
           </button>
 
+          <button
+            onClick={() => navigate('/profile')}
+            className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition"
+          >
+            <User size={18} /> Profile
+          </button>
         </header>
 
         {/* --- Dashboard Statistics --- */}
