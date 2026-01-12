@@ -34,6 +34,9 @@ const TopicView = () => {
   const [newNoteTags, setNewNoteTags] = useState<string>('');
   const [editingNoteTags, setEditingNoteTags] = useState<string>('');
   const [filterTags, setFilterTags] = useState<string>('');
+  const [tagSuggestions, setTagSuggestions] = useState<string[]>([]);
+  const [showNewNoteTagSuggestions, setShowNewNoteTagSuggestions] = useState(false);
+  const [showEditingNoteTagSuggestions, setShowEditingNoteTagSuggestions] = useState(false);
 
   const createEditor = (initialContent: string, onUpdateCallback: (editor: any) => void) => useEditor({
     extensions: [
