@@ -468,6 +468,7 @@ const Dashboard = () => {
 
                     <div className="flex justify-between items-center text-sm text-gray-500">
                       <span>{new Date(topic.created_at).toLocaleDateString()}</span>
+                      <span className="text-sm text-gray-400">{topic.note_count} Notes</span>
                       <ArrowRight className="group-hover:text-blue-400 group-hover:translate-x-1 transition" size={18} />
                     </div>
                   </div>
