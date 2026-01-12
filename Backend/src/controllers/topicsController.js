@@ -3,7 +3,15 @@ import pool from '../db/index.js';
 
 export const getTopics = async (req, res) => {
     try {
-        const result = await pool.query('SELECT * FROM topics WHERE user_id = $1 ORDER BY created_at DESC', [req.user.id]);
+        const result = await pool.query(
+            `SELECT t.*, COUNT(n.id) AS note_count
+             FROM topics t
+             LEFT JOIN notes n ON t.id = n.topic_id
+             WHERE t.user_id = $1
+             GROUP BY t.id
+             ORDER BY t.created_at DESC`,
+            [req.user.id]
+        );
         res.json(result.rows);
     } catch (error) {
         res.status(500).json({ error: error.message });
