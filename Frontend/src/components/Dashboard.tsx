@@ -34,6 +34,7 @@ const Dashboard = () => {
   const [editingTopicId, setEditingTopicId] = useState<number | null>(null);
   const [editingTopicTitle, setEditingTopicTitle] = useState('');
   const [topicSearchTerm, setTopicSearchTerm] = useState('');
+  const [topicSearchTerm, setTopicSearchTerm] = useState('');
 
   const navigate = useNavigate();
   const { token, logout, user } = useAuth();
