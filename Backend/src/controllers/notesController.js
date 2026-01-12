@@ -85,16 +85,18 @@ export const deleteNote = async (req, res) => {
 export const searchNotes = async (req, res) => {
     try {
         const { q } = req.query;
+        const userId = req.user.id; // Get user ID from authenticated request
         const result = await pool.query(
             `SELECT n.*, t.title as topic_title FROM notes n
              JOIN topics t ON n.topic_id = t.id
-             WHERE n.content ILIKE $1
+             WHERE n.content ILIKE $1 AND t.user_id = $2
              ORDER BY n.created_at DESC`,
-            [`%${q}%`]
+            [`%${q}%`, userId]
         );
         res.json(result.rows);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(error); // Added console.error for better error visibility
+        res.status(500).json({ error: 'Server error' }); // Generic server error message
     }
 };
 
