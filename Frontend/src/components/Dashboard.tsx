@@ -355,17 +355,80 @@ const Dashboard = () => {
                     className="bg-gray-800/50 hover:bg-gray-800 border border-gray-700 rounded-xl p-6 cursor-pointer group transition hover:scale-[1.02]"
                   >
                     <div className="flex justify-between items-start mb-3">
-                      <h2 className="text-lg font-semibold group-hover:text-blue-400">
-                        {topic.title}
-                      </h2>
+                      {editingTopicId === topic.id ? (
+                        <input
+                          type="text"
+                          value={editingTopicTitle}
+                          onChange={(e) => setEditingTopicTitle(e.target.value)}
+                          onClick={(e) => e.stopPropagation()} // Prevent navigating when clicking input
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              // Call save function here
+                              // handleSaveEditedTopic(topic.id, editingTopicTitle);
+                              console.log('Save edited topic'); // Placeholder
+                            }
+                            if (e.key === 'Escape') {
+                              setEditingTopicId(null);
+                              setEditingTopicTitle('');
+                            }
+                          }}
+                          className="flex-1 bg-gray-700 border border-gray-600 rounded-md p-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          autoFocus
+                        />
+                      ) : (
+                        <h2 className="text-lg font-semibold group-hover:text-blue-400">
+                          {topic.title}
+                        </h2>
+                      )}
 
-                      <button
-                        onClick={(e) => handleDeleteTopic(topic.id, e)}
-                        aria-label="Delete topic"
-                        className="text-gray-500 hover:text-red-400 p-1 rounded-full hover:bg-red-400/10"
-                      >
-                        <Trash2 size={16} />
-                      </button>
+                      <div className="flex gap-2 items-center">
+                        {editingTopicId === topic.id ? (
+                          <>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                // Call save function here
+                                // handleSaveEditedTopic(topic.id, editingTopicTitle);
+                                console.log('Save edited topic'); // Placeholder
+                              }}
+                              aria-label="Save topic title"
+                              className="px-3 py-1 rounded-lg text-green-500 hover:text-green-400 hover:bg-green-400/10 text-sm"
+                            >
+                              Save
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEditingTopicId(null);
+                                setEditingTopicTitle('');
+                              }}
+                              aria-label="Cancel topic title edit"
+                              className="px-3 py-1 rounded-lg text-gray-500 hover:text-gray-400 hover:bg-gray-400/10 text-sm"
+                            >
+                              Cancel
+                            </button>
+                          </>
+                        ) : (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation(); // Prevent navigating to topic view
+                              setEditingTopicId(topic.id);
+                              setEditingTopicTitle(topic.title);
+                            }}
+                            aria-label="Edit topic title"
+                            className="text-gray-500 hover:text-blue-400 p-1 rounded-full hover:bg-blue-400/10"
+                          >
+                            <Edit size={16} />
+                          </button>
+                        )}
+                        <button
+                          onClick={(e) => handleDeleteTopic(topic.id, e)}
+                          aria-label="Delete topic"
+                          className="text-gray-500 hover:text-red-400 p-1 rounded-full hover:bg-red-400/10"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
                     </div>
 
                     <div className="flex justify-between items-center text-sm text-gray-500">
