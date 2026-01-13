@@ -23,5 +23,13 @@ app.get('/api/health', (req, res) => {
     res.status(200).json({ status: 'ok', message: 'Backend is running' });
 });
 
+// Generic Error Handling Middleware
+app.use((err, req, res, next) => {
+    console.error(err.stack); // Log the error stack for debugging
+    res.status(err.statusCode || 500).json({
+        error: err.message || 'Something went wrong!'
+    });
+});
+
 export { app };
 
