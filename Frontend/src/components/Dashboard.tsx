@@ -49,7 +49,7 @@ const Dashboard = () => {
     try {
       // No setLoading(true) here as it's handled by overall dashboard loading
       setError(null);
-      const res = await fetch(`${API_BASE}/api/dashboard/stats`, {
+      const res = await fetch(`${API_BASE}/api/users/dashboard/stats`, {
         headers: authHeaders,
         signal,
       });
