@@ -474,7 +474,7 @@ const TopicView = () => {
                   </form>
                 ) : (
                   <>
-                    <ReactMarkdown rehypePlugins={[rehypeRaw]} className="prose prose-invert max-w-none text-gray-700 dark:text-gray-300">
+                    <ReactMarkdown rehypePlugins={[rehypeRaw]}>
                       {note.content}
                     </ReactMarkdown>
                     {note.tags && note.tags.length > 0 && (
