@@ -45,6 +45,14 @@ const TopicView = () => {
     [token]
   );
 
+  const newNoteEditorOptions = useMemo(() => ({
+    theme: theme === 'light' ? 'light' : 'dark',
+  }), [theme]);
+
+  const editNoteEditorOptions = useMemo(() => ({
+    theme: theme === 'light' ? 'light' : 'dark',
+  }), [theme]);
+
   const fetchNotes = useCallback(async (signal?: AbortSignal) => {
     if (!topicId) return;
     try {
@@ -346,9 +354,7 @@ const TopicView = () => {
 
         <div className="mb-8 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
           <form onSubmit={handleCreateNote} className="flex flex-col gap-4">
-            <SimpleMDE key="new-note-editor" value={newNoteContent} onChange={setNewNoteContent} options={{
-              theme: theme === 'light' ? 'light' : 'dark',
-            }} />
+            <SimpleMDE key="new-note-editor" value={newNoteContent} onChange={setNewNoteContent} options={newNoteEditorOptions} />
             <input
               type="text"
               placeholder="Add tags (comma-separated)"
@@ -414,9 +420,7 @@ const TopicView = () => {
                       handleUpdateNote(editingNoteId);
                     }
                   }} className="flex flex-col gap-4">
-                    <SimpleMDE key="edit-note-editor" value={editEditorContent} onChange={setEditEditorContent} options={{
-                      theme: theme === 'light' ? 'light' : 'dark',
-                    }} />
+                    <SimpleMDE key="edit-note-editor" value={editEditorContent} onChange={setEditEditorContent} options={editNoteEditorOptions} />
                     <input
                       type="text"
                       placeholder="Add tags (comma-separated)"
