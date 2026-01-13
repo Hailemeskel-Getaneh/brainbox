@@ -65,8 +65,31 @@ export const updateTopic = async (req, res) => {
 
         res.json(result.rows[0]);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error(error); // Added console.error for better error visibility
+        res.status(500).json({ error: 'Server error' }); // Generic server error message
     }
 };
+
+export const getTopicById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const userId = req.user.id; // From authMiddleware
+
+        const result = await pool.query(
+            'SELECT id, title, user_id, created_at FROM topics WHERE id = $1 AND user_id = $2',
+            [id, userId]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Topic not found or access denied' });
+        }
+
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Server error fetching topic' });
+    }
+};
+
 
 
