@@ -132,7 +132,8 @@ const TopicView = () => {
         const errData = await res.json();
         throw new Error(errData.error || 'Failed to create note');
       }
-      await fetchNotes();
+      // No longer calling fetchNotes() here to prevent clearing existing notes when filters are active.
+      // Optimistic update should handle displaying the new note.
     } catch (err: any) {
       setError(err.message ?? 'Unable to create note');
       if (topicId) fetchNotes();
@@ -345,7 +346,7 @@ const TopicView = () => {
 
         <div className="mb-8 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
           <form onSubmit={handleCreateNote} className="flex flex-col gap-4">
-            <SimpleMDE value={newNoteContent} onChange={setNewNoteContent} options={{
+            <SimpleMDE key="new-note-editor" value={newNoteContent} onChange={setNewNoteContent} options={{
               theme: theme === 'light' ? 'light' : 'dark',
             }} />
             <input
@@ -413,7 +414,7 @@ const TopicView = () => {
                       handleUpdateNote(editingNoteId);
                     }
                   }} className="flex flex-col gap-4">
-                    <SimpleMDE value={editEditorContent} onChange={setEditEditorContent} options={{
+                    <SimpleMDE key="edit-note-editor" value={editEditorContent} onChange={setEditEditorContent} options={{
                       theme: theme === 'light' ? 'light' : 'dark',
                     }} />
                     <input
