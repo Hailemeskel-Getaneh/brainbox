@@ -7,11 +7,13 @@ import Register from './pages/Register';
 import ProtectedRoute from './components/ProtectedRoute';
 import UserProfile from './components/UserProfile';
 import { AuthProvider } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 
 function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <ThemeProvider>
+        <BrowserRouter>
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
@@ -24,6 +26,7 @@ function App() {
           </Route>
         </Routes>
       </BrowserRouter>
+      </ThemeProvider>
     </AuthProvider>
   );
 }
