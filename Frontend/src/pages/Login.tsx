@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { LogIn, Mail, Lock, AlertCircle, Brain } from 'lucide-react';
-import { useTheme } from '../context/ThemeContext';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5000';
 
@@ -13,7 +12,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
-  const { theme } = useTheme();
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
