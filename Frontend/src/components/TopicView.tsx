@@ -6,7 +6,7 @@ import SimpleMDE from 'react-simplemde-editor';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import 'easymde/dist/easymde.min.css';
-import { useTheme } from '../context/ThemeContext';
+import { useTheme } from '../context/useTheme';
 
 interface Note {
   id: number;
@@ -35,7 +35,7 @@ const TopicView = () => {
   const [newNoteTags, setNewNoteTags] = useState<string>('');
   const [editingNoteTags, setEditingNoteTags] = useState<string>('');
   const [filterTags, setFilterTags] = useState<string>('');
-  const [tagSuggestions, setTagSuggestions] = useState<string[]>([]);
+  const [tagSuggestions] = useState<string[]>([]);
   const [showNewNoteTagSuggestions, setShowNewNoteTagSuggestions] = useState(false);
   const [showEditingNoteTagSuggestions, setShowEditingNoteTagSuggestions] = useState(false);
   const [showExportOptions, setShowExportOptions] = useState(false);
@@ -88,12 +88,16 @@ const TopicView = () => {
       }
       const notesData = await notesRes.json();
       setNotes(notesData);
-    } catch (err: any) {
-      if (err.name !== 'AbortError') {
-        setError(err.message ?? 'Something went wrong');
-        if (err.message === 'Topic not found or access denied') {
-          navigate('/dashboard'); // Redirect if topic not found or no access
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        if (err.name !== 'AbortError') {
+          setError(err.message ?? 'Something went wrong');
+          if (err.message === 'Topic not found or access denied') {
+            navigate('/dashboard'); // Redirect if topic not found or no access
+          }
         }
+      } else {
+        setError('Something went wrong');
       }
     } finally {
       setLoading(false);
@@ -142,8 +146,10 @@ const TopicView = () => {
       }
       // No longer calling fetchNotes() here to prevent clearing existing notes when filters are active.
       // Optimistic update should handle displaying the new note.
-    } catch (err: any) {
-      setError(err.message ?? 'Unable to create note');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message ?? 'Unable to create note');
+      }
       if (topicId) fetchNotes();
     } finally {
       setSubmitting(false);
@@ -174,8 +180,10 @@ const TopicView = () => {
       setEditingNoteId(null);
       setEditEditorContent('');
       await fetchNotes();
-    } catch (err: any) {
-      setError(err.message ?? 'Unable to update note');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message ?? 'Unable to update note');
+      }
     } finally {
       setSubmitting(false);
     }
@@ -197,8 +205,10 @@ const TopicView = () => {
         const errData = await res.json();
         throw new Error(errData.error || 'Failed to delete note');
       }
-    } catch (err: any) {
-      setError(err.message ?? 'Unable to delete note');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message ?? 'Unable to delete note');
+      }
       setNotes(prevNotes);
     }
   };
