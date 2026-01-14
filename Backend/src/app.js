@@ -24,7 +24,7 @@ app.get('/api/health', (req, res) => {
 });
 
 // Generic Error Handling Middleware
-app.use((err, req, res, next) => {
+app.use((err, req, res, _next) => {
     console.error(err.stack); // Log the error stack for debugging
     res.status(err.statusCode || 500).json({
         error: err.message || 'Something went wrong!'
