@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { UserPlus, Mail, Lock, User, AlertCircle, Brain, CheckCircle } from 'lucide-react';
-import { useTheme } from '../context/ThemeContext';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5000';
 
@@ -14,7 +13,7 @@ const Register = () => {
     const [loading, setLoading] = useState(false);
     const { login } = useAuth();
     const navigate = useNavigate();
-    const { theme } = useTheme();
+
 
     const passwordStrength = () => {
         if (password.length === 0) return { strength: 0, label: '', color: '' };
