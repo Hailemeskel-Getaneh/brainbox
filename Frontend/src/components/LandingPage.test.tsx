@@ -5,7 +5,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 describe('LandingPage', () => {
     beforeEach(() => {
-        global.fetch = vi.fn().mockResolvedValue({
+        globalThis.fetch = vi.fn().mockResolvedValue({
             ok: true,
             json: () => Promise.resolve({ status: 'ok' }),
         });
