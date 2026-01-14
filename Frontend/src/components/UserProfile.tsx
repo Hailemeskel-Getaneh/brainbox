@@ -3,10 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Loader2 } from 'lucide-react';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5000';
+const API_BASE = '/api';
 
 const UserProfile = () => {
-  const { token, user, logout, updateUser } = useAuth();
+  const { token, logout, updateUser } = useAuth();
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
@@ -34,7 +34,7 @@ const UserProfile = () => {
       try {
         setLoading(true);
         setError(null);
-        const res = await fetch(`${API_BASE}/api/user/profile`, {
+        const res = await fetch(`${API_BASE}/users/profile`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -49,11 +49,13 @@ const UserProfile = () => {
         setProfile(data);
         setEditUsername(data.username);
         setEditEmail(data.email);
-      } catch (err: any) {
-        setError(err.message || 'Error fetching profile');
-        if (err.message === 'jwt expired' || err.message === 'Not authorized') {
-            logout();
-            navigate('/login');
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+            setError(err.message || 'Error fetching profile');
+            if (err.message === 'jwt expired' || err.message === 'Not authorized') {
+                logout();
+                navigate('/login');
+            }
         }
       } finally {
         setLoading(false);
@@ -70,7 +72,7 @@ const UserProfile = () => {
     try {
       setLoading(true); // Reusing loading state for submission
       setError(null);
-      const res = await fetch(`${API_BASE}/api/user/profile`, {
+      const res = await fetch(`${API_BASE}/users/profile`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -88,8 +90,10 @@ const UserProfile = () => {
       setProfile(updatedData); // Update local profile state
       updateUser(updatedData); // Update user in AuthContext
       setIsEditingProfile(false); // Exit editing mode
-    } catch (err: any) {
-      setError(err.message || 'Error updating profile');
+    } catch (err: unknown) {
+        if (err instanceof Error) {
+            setError(err.message || 'Error updating profile');
+        }
     } finally {
       setLoading(false);
     }
@@ -113,7 +117,7 @@ const UserProfile = () => {
 
     try {
       setIsChangingPassword(true);
-      const res = await fetch(`${API_BASE}/api/user/password`, {
+      const res = await fetch(`${API_BASE}/users/password`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -131,8 +135,10 @@ const UserProfile = () => {
       setOldPassword('');
       setNewPassword('');
       setConfirmNewPassword('');
-    } catch (err: any) {
-      setPasswordChangeError(err.message || 'Error changing password');
+    } catch (err: unknown) {
+        if (err instanceof Error) {
+            setPasswordChangeError(err.message || 'Error changing password');
+        }
     } finally {
       setIsChangingPassword(false);
     }
