@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Trash2, ArrowRight, LogOut, Loader2, Search, User, Edit, Sun, Moon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { useTheme } from '../context/ThemeContext';
+import { useTheme } from '../context/useTheme';
 
 interface Topic {
   id: number;
@@ -18,7 +18,7 @@ interface SearchResult {
   topic_title: string;
 }
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5000';
+const API_BASE = '/api';
 
 const Dashboard = () => {
   const [topics, setTopics] = useState<Topic[]>([]);
@@ -49,7 +49,7 @@ const Dashboard = () => {
     try {
       // No setLoading(true) here as it's handled by overall dashboard loading
       setError(null);
-      const res = await fetch(`${API_BASE}/api/users/dashboard/stats`, {
+      const res = await fetch(`${API_BASE}/users/dashboard/stats`, {
         headers: authHeaders,
         signal,
       });
@@ -60,8 +60,8 @@ const Dashboard = () => {
       }
       const data = await res.json();
       setStats(data);
-    } catch (err: any) {
-      if (err.name !== 'AbortError') {
+    } catch (err: unknown) {
+      if (err instanceof Error && err.name !== 'AbortError') {
         setError(err.message ?? 'Something went wrong fetching stats');
       }
     }
@@ -70,8 +70,7 @@ const Dashboard = () => {
   const fetchTopics = useCallback(async (signal?: AbortSignal) => {
     try {
       setLoading(true);
-      setError(null);
-      const res = await fetch(`${API_BASE}/api/topics`, {
+      const res = await fetch(`${API_BASE}/topics`, {
         headers: authHeaders,
         signal,
       });
@@ -79,8 +78,8 @@ const Dashboard = () => {
       if (!res.ok) throw new Error('Failed to load topics');
       const data = await res.json();
       setTopics(data);
-    } catch (err: any) {
-      if (err.name !== 'AbortError') {
+    } catch (err: unknown) {
+      if (err instanceof Error && err.name !== 'AbortError') {
         setError(err.message ?? 'Something went wrong');
       }
     } finally {
@@ -111,12 +110,14 @@ const Dashboard = () => {
     const search = async () => {
       try {
         setSearching(true);
-        const res = await fetch(`${API_BASE}/api/notes/search?q=${searchTerm}`);
+        const res = await fetch(`${API_BASE}/notes/search?q=${searchTerm}`);
         if (!res.ok) throw new Error('Search failed');
         const data = await res.json();
         setSearchResults(data);
-      } catch (err: any) {
-        setError(err.message ?? 'Something went wrong');
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+            setError(err.message ?? 'Something went wrong');
+        }
       } finally {
         setSearching(false);
       }
@@ -146,7 +147,7 @@ const Dashboard = () => {
       setTopics((prev) => [optimistic, ...prev]);
       setNewTopic('');
 
-      const res = await fetch(`${API_BASE}/api/topics`, {
+      const res = await fetch(`${API_BASE}/topics`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -157,8 +158,10 @@ const Dashboard = () => {
 
       if (!res.ok) throw new Error('Failed to create topic');
       await fetchTopics();
-    } catch (err: any) {
-      setError(err.message ?? 'Unable to create topic');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message ?? 'Unable to create topic');
+      }
       fetchTopics(); // rollback optimistic update
     } finally {
       setSubmitting(false);
@@ -182,9 +185,7 @@ const Dashboard = () => {
     setTopics((t) => t.filter((x) => x.id !== id));
 
     try {
-      const res = await fetch(`${API_BASE}/api/topics/${id}`, {
-        method: 'DELETE',
-        headers: authHeaders,
+      const res = await fetch(`${API_BASE}/topics/${id}`, {        headers: authHeaders,
       });
       if (!res.ok) throw new Error('Delete failed');
     } catch {
@@ -208,7 +209,7 @@ const Dashboard = () => {
       setSubmitting(true);
       setError(null);
 
-      const res = await fetch(`${API_BASE}/api/topics/${id}`, {
+      const res = await fetch(`${API_BASE}/topics/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -229,8 +230,10 @@ const Dashboard = () => {
       );
       setEditingTopicId(null);
       setEditingTopicTitle('');
-    } catch (err: any) {
-      setError(err.message ?? 'Unable to update topic title');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message ?? 'Unable to update topic title');
+      }
     } finally {
       setSubmitting(false);
     }
