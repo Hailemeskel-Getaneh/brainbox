@@ -12,6 +12,12 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: './src/test/setup.ts',
+    deps: {
+      optimizer: {
+        exclude: ['html-encoding-sniffer'],
+        include: ['@exodus/bytes'],
+      },
+    },
   },
   server: {
     port: 5173,
