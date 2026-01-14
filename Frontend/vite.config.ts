@@ -13,10 +13,7 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: './src/test/setup.ts',
     deps: {
-      optimizer: {
-        exclude: ['html-encoding-sniffer'],
-        include: ['@exodus/bytes'],
-      },
+      inline: ['html-encoding-sniffer', '@exodus/bytes'],
     },
   },
   server: {
