@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ArrowLeft } from 'lucide-react';
 
 const API_BASE = '/api';
 
@@ -166,6 +166,16 @@ const UserProfile = () => {
   return (
     <div className="min-h-screen bg-gray-900 text-white p-8">
       <div className="max-w-2xl mx-auto bg-gray-800/50 rounded-lg shadow-xl p-6 border border-gray-700/50">
+        <div className="flex items-center mb-6">
+          <button
+            onClick={() => navigate('/dashboard')}
+            className="flex items-center text-gray-400 hover:text-white transition-colors duration-200"
+            aria-label="Back to Dashboard"
+          >
+            <ArrowLeft size={24} className="mr-2" />
+            <span className="text-lg">Back to Dashboard</span>
+          </button>
+        </div>
         <h1 className="text-3xl font-bold text-center mb-8 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600">
           User Profile
         </h1>
