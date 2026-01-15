@@ -12,11 +12,6 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: './src/test/setup.ts',
-    server: {
-      deps: {
-        external: ['html-encoding-sniffer', '@exodus/bytes'],
-      },
-    },
   },
   server: {
     port: 5173,
