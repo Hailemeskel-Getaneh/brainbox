@@ -34,13 +34,7 @@ const TopicView = () => {
   const [newNoteTags, setNewNoteTags] = useState<string>('');
   const [editingNoteTags, setEditingNoteTags] = useState<string>('');
   const [filterTags, setFilterTags] = useState<string>('');
-  const [tagSuggestions] = useState<string[]>([]);
-  const [showExportOptions, setShowExportOptions] = useState(false);
-
-  const authHeaders = useMemo(
-    () => ({ Authorization: `Bearer ${token}` }),
-    [token]
-  );
+    const [tagSuggestions] = useState<string[]>([]);
 
   const fetchNotes = useCallback(async (signal?: AbortSignal) => {
     if (!topicId) return;
@@ -72,7 +66,7 @@ const TopicView = () => {
         signal,
       });
       if (!notesRes.ok) {
-        const errData = await notesRes.json();
+        const errData = await res.json();
         throw new Error(errData.error || 'Failed to load notes');
       }
       const notesData = await notesRes.json();
@@ -229,7 +223,7 @@ const TopicView = () => {
           const date = new Date(note.created_at).toLocaleString();
           const tags = note.tags && note.tags.length > 0 ? `\nTags: ${note.tags.join(', ')}` : '';
           // Remove Markdown formatting for plain text
-          const plainTextContent = note.content.replace(/##|\*\*|__|\*|_|\[.*?\]\(.*?\)|\n/g, '').trim();
+          const plainTextContent = note.content.replace(/##|\*\*|__|\[.*?\]\(.*?\)|\n/g, '').trim();
           return `Note on ${date}:\n${plainTextContent}${tags}\n---`;
         })
         .join('\n\n');
@@ -351,21 +345,19 @@ const TopicView = () => {
           </div>
         )}
 
-import NoteEditor from './NoteEditor';
-
-// ... (rest of the component)
-        <NoteEditor
-          submitting={submitting}
-          content={newNoteContent}
-          tags={newNoteTags}
-          onContentChange={setNewNoteContent}
-          onTagsChange={setNewNoteTags}
-          onSubmit={handleCreateNote}
-          buttonText="Add Note"
-        />
+        <div className="mb-8 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+          <NoteEditor
+            submitting={submitting}
+            content={newNoteContent}
+            tags={newNoteTags}
+            onContentChange={setNewNoteContent}
+            onTagsChange={setNewNoteTags}
+            onSubmit={handleCreateNote}
+            buttonText="Add Note"
+          />
+        </div>
 
         {loading ? (
-// ... (rest of the component)
           <div className="flex justify-center py-20">
             <Loader2 className="animate-spin" size={36} />
           </div>
@@ -374,10 +366,6 @@ import NoteEditor from './NoteEditor';
             No notes yet. Add your first note above.
           </div>
         ) : (
-import Note from './Note';
-
-// ... (rest of the component)
-
           <div className="space-y-4">
             {notes.map((note) => (
               <div key={note.id} className="bg-white dark:bg-gray-800/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
@@ -395,6 +383,11 @@ import Note from './Note';
                       }
                     }}
                     buttonText="Save"
+                    onCancel={() => {
+                      setEditingNoteId(null);
+                      setEditEditorContent('');
+                      setEditingNoteTags('');
+                    }}
                   />
                 ) : (
                   <Note
@@ -417,3 +410,4 @@ import Note from './Note';
 };
 
 export default TopicView;
+>>>>>>> 88b8ba9 (refactor(topic): export note type)
