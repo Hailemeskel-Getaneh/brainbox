@@ -1,14 +1,13 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Plus, Trash2, ArrowLeft, Loader2, Pencil, Download } from 'lucide-react';
+import { Plus, ArrowLeft, Loader2, Download } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import SimpleMDE from 'react-simplemde-editor';
-import ReactMarkdown from 'react-markdown';
-import rehypeRaw from 'rehype-raw';
 import 'easymde/dist/easymde.min.css';
 import { useTheme } from '../context/useTheme';
+import Note from './Note';
+import NoteEditor from './NoteEditor';
 
-interface Note {
+export interface Note {
   id: number;
   content: string;
   created_at: string;
@@ -36,22 +35,12 @@ const TopicView = () => {
   const [editingNoteTags, setEditingNoteTags] = useState<string>('');
   const [filterTags, setFilterTags] = useState<string>('');
   const [tagSuggestions] = useState<string[]>([]);
-  const [showNewNoteTagSuggestions, setShowNewNoteTagSuggestions] = useState(false);
-  const [showEditingNoteTagSuggestions, setShowEditingNoteTagSuggestions] = useState(false);
   const [showExportOptions, setShowExportOptions] = useState(false);
 
   const authHeaders = useMemo(
     () => ({ Authorization: `Bearer ${token}` }),
     [token]
   );
-
-  const newNoteEditorOptions = useMemo(() => ({
-    theme: theme === 'light' ? 'light' : 'dark',
-  }), [theme]);
-
-  const editNoteEditorOptions = useMemo(() => ({
-    theme: theme === 'light' ? 'light' : 'dark',
-  }), [theme]);
 
   const fetchNotes = useCallback(async (signal?: AbortSignal) => {
     if (!topicId) return;
@@ -362,56 +351,21 @@ const TopicView = () => {
           </div>
         )}
 
-        <div className="mb-8 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
-          <form onSubmit={handleCreateNote} className="flex flex-col gap-4">
-            <SimpleMDE key="new-note-editor" value={newNoteContent} onChange={setNewNoteContent} options={newNoteEditorOptions} />
-            <input
-              type="text"
-              placeholder="Add tags (comma-separated)"
-              value={newNoteTags}
-              onChange={(e) => setNewNoteTags(e.target.value)}
-              onFocus={() => setShowNewNoteTagSuggestions(true)}
-              onBlur={() => setTimeout(() => setShowNewNoteTagSuggestions(false), 100)}
-              className="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg p-3 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-            />
-            {showNewNoteTagSuggestions && tagSuggestions.length > 0 && (
-              <div className="absolute z-10 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg mt-1 max-h-48 overflow-y-auto">
-                {tagSuggestions
-                  .filter(
-                    (tag) =>
-                      tag.toLowerCase().includes(newNoteTags.split(',').pop()?.trim().toLowerCase() || '') &&
-                      !(newNoteTags.split(',').map(t => t.trim()).includes(tag))
-                  )
-                  .map((tag) => (
-                    <div
-                      key={tag}
-                      onMouseDown={() => {
-                        const currentTags = newNoteTags.split(',').map(t => t.trim()).filter(t => t.length > 0);
-                        currentTags.pop();
-                        setNewNoteTags([...currentTags, tag].join(', ') + ', ');
-                        setShowNewNoteTagSuggestions(false);
-                      }}
-                      className="p-2 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700"
-                    >
-                      {tag}
-                    </div>
-                  ))}
-              </div>
-            )}
-            <div className="flex justify-end">
-              <button
-                type="submit"
-                disabled={submitting || !newNoteContent.trim()}
-                className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-500 disabled:opacity-50 px-6 py-3 rounded-lg font-semibold flex items-center gap-2 text-white"
-              >
-                {submitting ? <Loader2 className="animate-spin" size={18} /> : <Plus size={18} />}
-                Add Note
-              </button>
-            </div>
-          </form>
-        </div>
+import NoteEditor from './NoteEditor';
+
+// ... (rest of the component)
+        <NoteEditor
+          submitting={submitting}
+          content={newNoteContent}
+          tags={newNoteTags}
+          onContentChange={setNewNoteContent}
+          onTagsChange={setNewNoteTags}
+          onSubmit={handleCreateNote}
+          buttonText="Add Note"
+        />
 
         {loading ? (
+// ... (rest of the component)
           <div className="flex justify-center py-20">
             <Loader2 className="animate-spin" size={36} />
           </div>
@@ -420,111 +374,38 @@ const TopicView = () => {
             No notes yet. Add your first note above.
           </div>
         ) : (
+import Note from './Note';
+
+// ... (rest of the component)
+
           <div className="space-y-4">
             {notes.map((note) => (
               <div key={note.id} className="bg-white dark:bg-gray-800/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                 {editingNoteId === note.id ? (
-                  <form onSubmit={(e) => {
-                    e.preventDefault();
-                    if (editingNoteId !== null) {
-                      handleUpdateNote(editingNoteId);
-                    }
-                  }} className="flex flex-col gap-4">
-                    <SimpleMDE key="edit-note-editor" value={editEditorContent} onChange={setEditEditorContent} options={editNoteEditorOptions} />
-                    <input
-                      type="text"
-                      placeholder="Add tags (comma-separated)"
-                      value={editingNoteTags}
-                      onChange={(e) => setEditingNoteTags(e.target.value)}
-                      onFocus={() => setShowEditingNoteTagSuggestions(true)}
-                      onBlur={() => setTimeout(() => setShowEditingNoteTagSuggestions(false), 100)}
-                      className="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg p-3 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-                    />
-                    {showEditingNoteTagSuggestions && editingNoteTags && tagSuggestions.length > 0 && (
-                      <div className="relative">
-                        <div className="absolute z-10 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg mt-1 max-h-48 overflow-y-auto">
-                          {tagSuggestions
-                            .filter(
-                              (tag) =>
-                                tag.toLowerCase().includes(editingNoteTags.split(',').pop()?.trim().toLowerCase() || '') &&
-                                !(editingNoteTags.split(',').map(t => t.trim()).includes(tag))
-                            )
-                            .map((tag) => (
-                              <div
-                                key={tag}
-                                onMouseDown={() => {
-                                  const currentTags = editingNoteTags.split(',').map(t => t.trim()).filter(t => t.length > 0);
-                                  currentTags.pop();
-                                  setEditingNoteTags([...currentTags, tag].join(', ') + ', ');
-                                  setShowEditingNoteTagSuggestions(false);
-                                }}
-                                className="p-2 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700"
-                              >
-                                {tag}
-                              </div>
-                            ))}
-                        </div>
-                      </div>
-                    )}
-                    <div className="flex justify-end gap-2">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setEditingNoteId(null);
-                          setEditEditorContent('');
-                          setEditingNoteTags('');
-                        }}
-                        className="px-4 py-2 rounded-lg text-gray-500 dark:text-gray-400 hover:text-gray-600 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-700 transition"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        type="submit"
-                        disabled={!editEditorContent.trim()}
-                        className="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-500 disabled:opacity-50 px-4 py-2 rounded-lg font-semibold text-white"
-                      >
-                        Save
-                      </button>
-                    </div>
-                  </form>
+                  <NoteEditor
+                    submitting={submitting}
+                    content={editEditorContent}
+                    tags={editingNoteTags}
+                    onContentChange={setEditEditorContent}
+                    onTagsChange={setEditingNoteTags}
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      if (editingNoteId !== null) {
+                        handleUpdateNote(editingNoteId);
+                      }
+                    }}
+                    buttonText="Save"
+                  />
                 ) : (
-                  <>
-                    <ReactMarkdown rehypePlugins={[rehypeRaw]}>
-                      {note.content}
-                    </ReactMarkdown>
-                    {note.tags && note.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        {note.tags.map((tag, index) => (
-                          <span key={index} className="bg-blue-500/10 text-blue-500 dark:bg-blue-600/30 dark:text-blue-300 text-xs px-2 py-1 rounded-full">
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                    <div className="flex justify-between items-center text-sm text-gray-400 dark:text-gray-500 mt-2">
-                      <span>{new Date(note.created_at).toLocaleString()}</span>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleDeleteNote(note.id)}
-                          aria-label="Delete note"
-                          className="text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 p-1 rounded-full hover:bg-red-400/10"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                        <button
-                          onClick={() => {
-                            setEditingNoteId(note.id);
-                            setEditEditorContent(note.content);
-                            setEditingNoteTags(note.tags?.join(', ') || '');
-                          }}
-                          aria-label="Edit note"
-                          className="text-gray-400 dark:text-gray-500 hover:text-blue-500 dark:hover:text-blue-400 p-1 rounded-full hover:bg-blue-400/10"
-                        >
-                          <Pencil size={16} />
-                        </button>
-                      </div>
-                    </div>
-                  </>
+                  <Note
+                    note={note}
+                    onDelete={handleDeleteNote}
+                    onEdit={(id, content, tags) => {
+                      setEditingNoteId(id);
+                      setEditEditorContent(content);
+                      setEditingNoteTags(tags);
+                    }}
+                  />
                 )}
               </div>
             ))}

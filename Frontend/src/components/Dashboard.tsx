@@ -1,44 +1,8 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Trash2, ArrowRight, LogOut, Loader2, Search, User, Edit, Sun, Moon } from 'lucide-react';
+import { Plus, Trash2, ArrowRight, Loader2, Search, Edit } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { useTheme } from '../context/useTheme';
-
-interface Topic {
-  id: number;
-  title: string;
-  created_at: string;
-  note_count: number;
-}
-
-interface SearchResult {
-  id: number;
-  content: string;
-  topic_id: number;
-  topic_title: string;
-}
-
-const API_BASE = '/api';
-
-const Dashboard = () => {
-  const [topics, setTopics] = useState<Topic[]>([]);
-  const [newTopic, setNewTopic] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
-  const [searching, setSearching] = useState(false);
-  const [stats, setStats] = useState({ totalTopics: 0, totalNotes: 0, notesLast7Days: 0 });
-  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
-  const [topicToDeleteId, setTopicToDeleteId] = useState<number | null>(null);
-  const [editingTopicId, setEditingTopicId] = useState<number | null>(null);
-  const [editingTopicTitle, setEditingTopicTitle] = useState('');
-  const [topicSearchTerm, setTopicSearchTerm] = useState('');
-
-  const navigate = useNavigate();
-  const { token, logout, user } = useAuth();
-  const { theme, toggleTheme } = useTheme();
+import Header from './Header';
 
   const authHeaders = useMemo(
     () => ({ Authorization: `Bearer ${token}` }),
@@ -247,35 +211,7 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white p-8">
       <div className="max-w-5xl mx-auto">
-        <header className="mb-12 flex flex-col md:flex-row md:justify-between md:items-center gap-6">
-          <div>
-            <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600 mb-2">
-              My BrainBox
-            </h1>
-            <p className="text-gray-500 dark:text-gray-400">Welcome back, {user?.username}</p>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <button
-              onClick={toggleTheme}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 rounded-lg transition"
-            >
-              {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
-            </button>
-            <button
-              onClick={() => navigate('/profile')}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 rounded-lg transition"
-            >
-              <User size={18} /> Profile
-            </button>
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 rounded-lg transition"
-            >
-              <LogOut size={18} /> Logout
-            </button>
-          </div>
-        </header>
+        <Header />
 
         {/* --- Dashboard Statistics --- */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
@@ -294,30 +230,20 @@ const Dashboard = () => {
         </div>
         {/* --- End Dashboard Statistics --- */}
 
-        {isConfirmingDelete && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-gray-800 p-6 rounded-lg shadow-xl border border-gray-700 max-w-sm mx-auto text-center">
-              <h3 className="text-xl font-semibold text-white mb-4">Confirm Deletion</h3>
-              <p className="text-gray-300 mb-6">Are you sure you want to delete this topic permanently? This action cannot be undone.</p>
-              <div className="flex justify-center gap-4">
-                <button
-                  onClick={cancelDelete}
-                  className="px-5 py-2 rounded-lg border border-gray-600 text-gray-300 hover:bg-gray-700 transition"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={confirmDelete}
-                  className="px-5 py-2 rounded-lg bg-red-600 text-white hover:bg-red-500 transition"
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+import ConfirmationModal from './ConfirmationModal';
+
+// ... (rest of the component)
+
+        <ConfirmationModal
+          isOpen={isConfirmingDelete}
+          onClose={cancelDelete}
+          onConfirm={confirmDelete}
+          title="Confirm Deletion"
+          message="Are you sure you want to delete this topic permanently? This action cannot be undone."
+        />
 
         <div className="mb-10 flex gap-4">
+// ... (rest of the component)
           <div className="relative flex-1">
             <input
               type="search"
