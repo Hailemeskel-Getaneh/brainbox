@@ -1,7 +1,7 @@
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import { Trash2, Pencil } from 'lucide-react';
-import { NoteType } from './TopicView';
+import type { NoteType } from './TopicView';
 
 interface NoteProps {
     note: NoteType;
