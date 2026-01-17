@@ -47,16 +47,18 @@ const ProfileInformation = () => {
     };
 
     return (
-        <div className="bg-gray-700/30 p-4 rounded-lg">
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
             <h2 className="text-xl font-semibold mb-4">Profile Information</h2>
-            {error && <div className="mb-4 text-red-400">{error}</div>}
+            {error && <div className="mb-4 text-red-400">
+                <p className="text-red-300 text-sm">{error}</p>
+            </div>}
             {!isEditingProfile ? (
                 <div className="space-y-2">
                     <p><strong>Username:</strong> {profile?.username}</p>
                     <p><strong>Email:</strong> {profile?.email}</p>
                     <button
                         onClick={() => setIsEditingProfile(true)}
-                        className="mt-4 px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-500 transition"
+                        className="mt-4 px-4 py-2 bg-blue-600 dark:bg-blue-700 rounded-lg hover:bg-blue-500 dark:hover:bg-blue-600 text-white transition"
                     >
                         Edit Profile
                     </button>
@@ -64,37 +66,37 @@ const ProfileInformation = () => {
             ) : (
                 <form onSubmit={handleSubmitProfileUpdate} className="space-y-4">
                     <div>
-                        <label htmlFor="username" className="block text-sm font-medium text-gray-300">Username</label>
+                        <label htmlFor="username" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Username</label>
                         <input
                             type="text"
                             id="username"
                             value={editUsername}
                             onChange={(e) => setEditUsername(e.target.value)}
-                            className="mt-1 block w-full bg-gray-900 border border-gray-700 rounded-md shadow-sm p-2 text-white focus:ring-blue-500 focus:border-blue-500"
+                            className="mt-1 block w-full bg-gray-100 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm p-2 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500"
                         />
                     </div>
                     <div>
-                        <label htmlFor="email" className="block text-sm font-medium text-gray-300">Email</label>
+                        <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
                         <input
                             type="email"
                             id="email"
                             value={editEmail}
                             onChange={(e) => setEditEmail(e.target.value)}
-                            className="mt-1 block w-full bg-gray-900 border border-gray-700 rounded-md shadow-sm p-2 text-white focus:ring-blue-500 focus:border-blue-500"
+                            className="mt-1 block w-full bg-gray-100 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm p-2 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500"
                         />
                     </div>
                     <div className="flex justify-end space-x-2">
                         <button
                             type="button"
                             onClick={() => setIsEditingProfile(false)}
-                            className="px-4 py-2 border border-gray-600 rounded-lg text-gray-300 hover:bg-gray-700 transition"
+                            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
                             disabled={loading}
-                            className="px-4 py-2 bg-green-600 rounded-lg hover:bg-green-500 transition"
+                            className="px-4 py-2 bg-green-600 dark:bg-green-700 rounded-lg hover:bg-green-500 dark:hover:bg-green-600 text-white transition"
                         >
                             {loading ? 'Saving...' : 'Save Changes'}
                         </button>
