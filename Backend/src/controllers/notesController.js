@@ -131,15 +131,25 @@ export const updateNote = async (req, res) => {
 
 export const getTagsSuggestions = async (req, res) => {
     const userId = req.user.id;
+    const { topicId } = req.query; // New: Get topicId from query
 
     try {
-        const result = await pool.query(
-            `SELECT DISTINCT UNNEST(n.tags) AS tag
-             FROM notes n
-             JOIN topics t ON n.topic_id = t.id
-             WHERE t.user_id = $1 AND n.tags IS NOT NULL AND array_length(n.tags, 1) > 0`,
-            [userId]
-        );
+        let query = `
+            SELECT DISTINCT UNNEST(n.tags) AS tag
+            FROM notes n
+            JOIN topics t ON n.topic_id = t.id
+            WHERE t.user_id = $1 AND n.tags IS NOT NULL AND array_length(n.tags, 1) > 0
+        `;
+        const queryParams = [userId];
+        let paramIndex = 2;
+
+        if (topicId) {
+            query += ` AND n.topic_id = $${paramIndex}`;
+            queryParams.push(topicId);
+            paramIndex++;
+        }
+
+        const result = await pool.query(query, queryParams);
         const tags = result.rows.map(row => row.tag);
         res.json(tags);
     } catch (error) {
