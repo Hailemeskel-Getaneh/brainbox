@@ -37,6 +37,7 @@ const Dashboard = () => {
   const [editingTopicTitle, setEditingTopicTitle] = useState('');
   const [topicSearchTerm, setTopicSearchTerm] = useState('');
   const [allTags, setAllTags] = useState<string[]>([]);
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
 
   const navigate = useNavigate();
   const { token } = useAuth();
@@ -72,7 +73,8 @@ const Dashboard = () => {
   const fetchTopics = useCallback(async (signal?: AbortSignal) => {
     try {
       setLoading(true);
-      const res = await fetch(`${API_BASE}/topics`, {
+      const url = selectedTag ? `${API_BASE}/topics?tag=${selectedTag}` : `${API_BASE}/topics`;
+      const res = await fetch(url, {
         headers: authHeaders,
         signal,
       });
@@ -87,7 +89,7 @@ const Dashboard = () => {
     } finally {
       setLoading(false);
     }
-  }, [authHeaders]);
+  }, [authHeaders, selectedTag]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -95,7 +97,7 @@ const Dashboard = () => {
       fetchTopics(controller.signal);
     }
     return () => controller.abort();
-  }, [fetchTopics, searchTerm]);
+  }, [fetchTopics, searchTerm, selectedTag]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -299,11 +301,20 @@ const Dashboard = () => {
               {allTags.map((tag) => (
                 <span
                   key={tag}
-                  className="bg-blue-500/10 text-blue-500 dark:bg-blue-600/30 dark:text-blue-300 text-sm px-3 py-1 rounded-full cursor-pointer hover:bg-blue-500/20 dark:hover:bg-blue-600/40 transition"
+                  onClick={() => setSelectedTag(tag)}
+                  className={`bg-blue-500/10 text-blue-500 dark:bg-blue-600/30 dark:text-blue-300 text-sm px-3 py-1 rounded-full cursor-pointer hover:bg-blue-500/20 dark:hover:bg-blue-600/40 transition ${selectedTag === tag ? 'ring-2 ring-blue-500 dark:ring-blue-400' : ''}`}
                 >
                   {tag}
                 </span>
               ))}
+              {selectedTag && (
+                <button
+                  onClick={() => setSelectedTag(null)}
+                  className="bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200 text-sm px-3 py-1 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 transition"
+                >
+                  Clear Tag Filter
+                </button>
+              )}
             </div>
           </div>
         )}
