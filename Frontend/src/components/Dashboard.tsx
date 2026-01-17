@@ -4,7 +4,6 @@ import { Plus, Trash2, ArrowRight, Loader2, Search, Edit } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import Header from './Header';
 import ConfirmationModal from './ConfirmationModal';
-import { useTheme } from '../context/useTheme';
 
 interface Topic {
   id: number;

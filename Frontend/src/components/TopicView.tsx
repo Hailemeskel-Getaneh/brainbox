@@ -2,7 +2,6 @@ import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Loader2, Download } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { useTheme } from '../context/useTheme';
 import 'easymde/dist/easymde.min.css';
 import Note from './Note';
 import NoteEditor from './NoteEditor';

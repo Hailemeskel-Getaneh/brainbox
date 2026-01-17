@@ -33,7 +33,7 @@ const NoteEditor = ({ submitting, content, tags, onContentChange, onTagsChange, 
             tag.toLowerCase().startsWith(lastTag.toLowerCase()) &&
             !currentTags.includes(tag)
         );
-    }, [tags, allUserTags]); // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [tags, allUserTags]);
 
     // Fetch all unique tags for suggestions
     useEffect(() => {
