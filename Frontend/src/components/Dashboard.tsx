@@ -41,7 +41,6 @@ const Dashboard = () => {
 
   const navigate = useNavigate();
   const { token } = useAuth();
-  const { theme } = useTheme();
 
   const authHeaders = useMemo(
     () => ({ Authorization: `Bearer ${token}` }),

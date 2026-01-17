@@ -20,7 +20,6 @@ const TopicView = () => {
   const { topicId } = useParams<{ topicId: string }>();
   const navigate = useNavigate();
   const { token } = useAuth();
-  const { theme } = useTheme();
 
   const [topicTitle, setTopicTitle] = useState('Loading...');
   const [notes, setNotes] = useState<NoteType[]>([]);
@@ -73,12 +72,16 @@ const TopicView = () => {
         );
         if (!notesRes.ok) throw new Error('Failed to load notes');
         setNotes(await notesRes.json());
-      } catch (err: any) {
-        if (err.name !== 'AbortError') {
-          setError(err.message || 'Something went wrong');
-          if (err.message === 'Topic not found or access denied') {
-            navigate('/dashboard');
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          if (err.name !== 'AbortError') {
+            setError(err.message || 'Something went wrong');
+            if (err.message === 'Topic not found or access denied') {
+              navigate('/dashboard');
+            }
           }
+        } else {
+          setError('An unknown error occurred');
         }
       } finally {
         setLoading(false);
@@ -149,8 +152,12 @@ const TopicView = () => {
         body: JSON.stringify({ content: optimistic.content, tags }),
       });
       if (!res.ok) throw new Error('Failed to create note');
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An unknown error occurred during note creation.');
+      }
       fetchNotes();
     } finally {
       setSubmitting(false);
@@ -173,8 +180,12 @@ const TopicView = () => {
       setEditContent('');
       setEditTags('');
       fetchNotes();
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An unknown error occurred during note update.');
+      }
     } finally {
       setSubmitting(false);
     }
@@ -190,8 +201,12 @@ const TopicView = () => {
         headers: authHeaders,
       });
       if (!res.ok) throw new Error('Failed to delete note');
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An unknown error occurred during note deletion.');
+      }
       setNotes(snapshot);
     }
   };
@@ -255,6 +270,61 @@ const TopicView = () => {
         </div>
 
         <h1 className="text-3xl font-bold mb-6">{topicTitle}</h1>
+
+        <div className="relative mb-6">
+          <input
+            type="text"
+            placeholder="Search notes in this topic..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg p-3 pl-10 pr-10 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+          />
+          {searchTerm && (
+            <button
+              onClick={() => setSearchTerm('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-white"
+            >
+              &times;
+            </button>
+          )}
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 112 8z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </div>
+        </div>
+
+        <div className="relative mb-6">
+          <input
+            type="text"
+            placeholder="Filter by tags (comma-separated)"
+            value={filterTags}
+            onChange={(e) => setFilterTags(e.target.value)}
+            className="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg p-3 pl-10 pr-10 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+          />
+          {filterTags && (
+            <button
+              onClick={() => setFilterTags('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-white"
+            >
+              &times;
+            </button>
+          )}
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5.99C17.65 3 21 6.35 21 10c0 4.63-3.37 8-8 8H6c-3.65 0-7-3.35-7-7 0-3.65 3.35-7 7-7zm0 14h10c3.35 0 6-2.65 6-6s-2.65-6-6-6H7C3.35 6 0 8.65 0 12s2.65 6 6 6z" />
+            </svg>
+          </div>
+        </div>
 
         {/* --- Topic Tags Section --- */}
         {topicTags.length > 0 && (
