@@ -36,6 +36,7 @@ const Dashboard = () => {
   const [editingTopicId, setEditingTopicId] = useState<number | null>(null);
   const [editingTopicTitle, setEditingTopicTitle] = useState('');
   const [topicSearchTerm, setTopicSearchTerm] = useState('');
+  const [allTags, setAllTags] = useState<string[]>([]);
 
   const navigate = useNavigate();
   const { token } = useAuth();
@@ -101,6 +102,34 @@ const Dashboard = () => {
     fetchStats(controller.signal);
     return () => controller.abort();
   }, [fetchStats]);
+
+  const fetchTags = useCallback(async (signal?: AbortSignal) => {
+    if (!token) return;
+    try {
+      setError(null);
+      const res = await fetch(`${API_BASE}/tags/suggestions`, {
+        headers: authHeaders,
+        signal,
+      });
+
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || 'Failed to load tags');
+      }
+      const data = await res.json();
+      setAllTags(data);
+    } catch (err: unknown) {
+      if (err instanceof Error && err.name !== 'AbortError') {
+        setError(err.message ?? 'Something went wrong fetching tags');
+      }
+    }
+  }, [authHeaders, token]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchTags(controller.signal);
+    return () => controller.abort();
+  }, [fetchTags]);
 
   useEffect(() => {
     if (!searchTerm.trim()) {
@@ -261,6 +290,24 @@ const Dashboard = () => {
           </div>
         </div>
         {/* --- End Dashboard Statistics --- */}
+
+        {/* --- All Tags Section --- */}
+        {allTags.length > 0 && (
+          <div className="mb-10">
+            <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Your Tags</h2>
+            <div className="flex flex-wrap gap-2">
+              {allTags.map((tag) => (
+                <span
+                  key={tag}
+                  className="bg-blue-500/10 text-blue-500 dark:bg-blue-600/30 dark:text-blue-300 text-sm px-3 py-1 rounded-full cursor-pointer hover:bg-blue-500/20 dark:hover:bg-blue-600/40 transition"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+        {/* --- End All Tags Section --- */}
 
         <ConfirmationModal
           isOpen={isConfirmingDelete}
