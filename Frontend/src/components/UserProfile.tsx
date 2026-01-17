@@ -57,7 +57,7 @@ const UserProfile = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
+      <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white flex items-center justify-center">
         <Loader2 className="animate-spin" size={36} />
       </div>
     );
@@ -65,22 +65,22 @@ const UserProfile = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-900 text-white p-8 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white p-8 flex items-center justify-center">
         <div className="bg-red-500/10 border border-red-500/30 p-4 rounded-lg text-red-300">
           <p>{error}</p>
-          <button onClick={() => navigate('/dashboard')} className="mt-4 px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-500">Go to Dashboard</button>
+          <button onClick={() => navigate('/dashboard')} className="mt-4 px-4 py-2 bg-blue-600 dark:bg-blue-700 rounded-lg hover:bg-blue-500 dark:hover:bg-blue-600 text-white">Go to Dashboard</button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-8">
-      <div className="max-w-2xl mx-auto bg-gray-800/50 rounded-lg shadow-xl p-6 border border-gray-700/50">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white p-8">
+      <div className="max-w-2xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-200 dark:border-gray-700">
         <div className="flex items-center mb-6">
           <button
             onClick={() => navigate('/dashboard')}
-            className="flex items-center text-gray-400 hover:text-white transition-colors duration-200"
+            className="flex items-center text-gray-400 dark:text-gray-500 hover:text-white dark:hover:text-gray-300 transition-colors duration-200"
             aria-label="Back to Dashboard"
           >
             <ArrowLeft size={24} className="mr-2" />
