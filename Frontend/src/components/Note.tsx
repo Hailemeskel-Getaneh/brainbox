@@ -15,15 +15,20 @@ const Note = ({ note, onDelete, onEdit }: NoteProps) => {
             <ReactMarkdown rehypePlugins={[rehypeRaw]}>
                 {note.content}
             </ReactMarkdown>
-            {note.tags && note.tags.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-2">
-                    {note.tags.map((tag, index) => (
-                        <span key={index} className="bg-blue-500/10 text-blue-500 dark:bg-blue-600/30 dark:text-blue-300 text-xs px-2 py-1 rounded-full">
-                            {tag}
-                        </span>
-                    ))}
-                </div>
-            )}
+            <div className="mt-4 pt-2 border-t border-gray-200 dark:border-gray-700">
+                <p className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-2">Tags:</p>
+                {note.tags && note.tags.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                        {note.tags.map((tag, index) => (
+                            <span key={index} className="bg-blue-500 text-white dark:bg-blue-600 text-xs px-3 py-1 rounded-full hover:ring-2 hover:ring-blue-400 transition cursor-default">
+                                {tag}
+                            </span>
+                        ))}
+                    </div>
+                ) : (
+                    <p className="text-sm text-gray-500 dark:text-gray-400">No tags.</p>
+                )}
+            </div>
             <div className="flex justify-between items-center text-sm text-gray-400 dark:text-gray-500 mt-2">
                 <span>{new Date(note.created_at).toLocaleString()}</span>
                 <div className="flex gap-2">
