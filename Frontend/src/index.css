@@ -68,11 +68,17 @@ body {
   display: block;
   overflow-x: auto;
   padding: 0.8em 1em;
-  background: #2d2d2d; /* Dark background for code blocks */
-  color: #cccccc; /* Light text color */
+  background: #f0f0f0; /* Light background for code blocks in light mode */
+  color: #333333; /* Dark text color in light mode */
   border-radius: 0.5em;
 }
 
+html.dark .ProseMirror .hljs {
+  background: #2d2d2d; /* Dark background for code blocks in dark mode */
+  color: #cccccc; /* Light text color in dark mode */
+}
+
+/* Specific highlight colors - ensure they work in both modes */
 .ProseMirror .hljs-comment,
 .ProseMirror .hljs-quote {
   color: #888888;
