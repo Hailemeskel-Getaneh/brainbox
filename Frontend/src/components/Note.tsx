@@ -1,7 +1,7 @@
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import { Trash2, Pencil } from 'lucide-react';
-import { Note as NoteType } from './TopicView';
+import { NoteType } from './TopicView';
 
 interface NoteProps {
     note: NoteType;
@@ -19,7 +19,7 @@ const Note = ({ note, onDelete, onEdit }: NoteProps) => {
                 <p className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-2">Tags:</p>
                 {note.tags && note.tags.length > 0 ? (
                     <div className="flex flex-wrap gap-2">
-                        {note.tags.map((tag, index) => (
+                        {note.tags.map((tag: string, index: number) => (
                             <span key={index} className="bg-blue-500 text-white dark:bg-blue-600 text-xs px-3 py-1 rounded-full hover:ring-2 hover:ring-blue-400 transition cursor-default">
                                 {tag}
                             </span>
