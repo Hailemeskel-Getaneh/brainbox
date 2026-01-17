@@ -3,7 +3,14 @@ import pool from '../db/index.js';
 export const getNotes = async (req, res) => {
     try {
         const { topicId } = req.params;
-        const { searchTerm, tags } = req.query; // Get searchTerm and tags from query parameters
+        const { searchTerm, tags, sortBy = 'created_at', sortOrder = 'ASC' } = req.query; // Add sortBy and sortOrder
+
+        // Validate sortBy and sortOrder to prevent SQL injection
+        const validSortBy = ['created_at', 'content', 'updated_at']; // Assuming notes table has updated_at
+        const validSortOrder = ['ASC', 'DESC'];
+
+        const finalSortBy = validSortBy.includes(sortBy as string) ? sortBy : 'created_at';
+        const finalSortOrder = validSortOrder.includes((sortOrder as string).toUpperCase()) ? (sortOrder as string).toUpperCase() : 'ASC';
 
         // Verify topic ownership
         const topicCheck = await pool.query('SELECT * FROM topics WHERE id = $1 AND user_id = $2', [topicId, req.user.id]);
@@ -23,7 +30,7 @@ export const getNotes = async (req, res) => {
 
         if (tags) {
             // tags can be a comma-separated string, convert to array
-            const tagArray = Array.isArray(tags) ? tags : tags.split(',');
+            const tagArray = Array.isArray(tags) ? tags : (tags as string).split(',');
             // For checking if ALL tags are present in the TEXT[] column
             // Use ANY for checking if ANY tag is present
             // For checking ALL, we need to iterate
@@ -32,7 +39,7 @@ export const getNotes = async (req, res) => {
             paramIndex++;
         }
 
-        query += ' ORDER BY created_at ASC';
+        query += ` ORDER BY ${finalSortBy} ${finalSortOrder}`; // Apply dynamic sorting
 
         const result = await pool.query(query, queryParams);
         res.json(result.rows);
