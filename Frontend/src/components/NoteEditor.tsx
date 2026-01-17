@@ -19,6 +19,7 @@ const NoteEditor = ({ submitting, content, tags, onContentChange, onTagsChange, 
     const { theme } = useTheme();
     const { token } = useAuth(); // Use useAuth to get the token
     const [showTagSuggestions, setShowTagSuggestions] = useState(false);
+    const [allUserTags, setAllUserTags] = useState<string[]>([]); // Moved declaration here
 
     const editorOptions = useMemo(() => ({
         theme: theme === 'light' ? 'light' : 'dark',
@@ -29,7 +30,7 @@ const NoteEditor = ({ submitting, content, tags, onContentChange, onTagsChange, 
         const lastTag = currentTags[currentTags.length - 1] || '';
         if (!lastTag) return [];
 
-        return allUserTags.filter(tag =>
+        return allUserTags.filter((tag: string) =>
             tag.toLowerCase().startsWith(lastTag.toLowerCase()) &&
             !currentTags.includes(tag)
         );
@@ -46,7 +47,7 @@ const NoteEditor = ({ submitting, content, tags, onContentChange, onTagsChange, 
                 if (!res.ok) throw new Error('Failed to fetch tags');
                 const data = await res.json();
                 setAllUserTags(data);
-            } catch (error) {
+            } catch (error: unknown) { // Use unknown for error type
                 console.error('Error fetching all tags:', error);
             }
         };
@@ -69,7 +70,7 @@ const NoteEditor = ({ submitting, content, tags, onContentChange, onTagsChange, 
                     />
                     {showTagSuggestions && tagSuggestions.length > 0 && (
                         <div className="absolute z-10 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg mt-1 max-h-48 overflow-y-auto shadow-lg">
-                            {tagSuggestions.map((tag) => (
+                            {tagSuggestions.map((tag: string) => (
                                 <div
                                     key={tag}
                                     onMouseDown={(e) => { // Use onMouseDown to prevent blur event from input
