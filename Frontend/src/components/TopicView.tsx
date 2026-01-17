@@ -30,6 +30,8 @@ const TopicView = () => {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [filterTags, setFilterTags] = useState('');
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [topicTags, setTopicTags] = useState<string[]>([]);
 
   const [newNoteContent, setNewNoteContent] = useState('');
   const [newNoteTags, setNewNoteTags] = useState('');
@@ -63,6 +65,7 @@ const TopicView = () => {
         const params = new URLSearchParams();
         if (searchTerm) params.append('searchTerm', searchTerm);
         if (filterTags) params.append('tags', filterTags);
+        if (selectedTag) params.append('tags', selectedTag); // Add selectedTag to filter
 
         const notesRes = await fetch(
           `${API_BASE}/api/notes/${topicId}${params.toString() ? `?${params}` : ''}`,
@@ -81,7 +84,7 @@ const TopicView = () => {
         setLoading(false);
       }
     },
-    [topicId, authHeaders, navigate, searchTerm, filterTags]
+    [topicId, authHeaders, navigate, searchTerm, filterTags, selectedTag] // Add selectedTag to dependencies
   );
 
   useEffect(() => {
@@ -89,6 +92,34 @@ const TopicView = () => {
     fetchNotes(controller.signal);
     return () => controller.abort();
   }, [fetchNotes]);
+
+  const fetchTopicTags = useCallback(async (signal?: AbortSignal) => {
+    if (!token || !topicId) return;
+    try {
+      setError(null);
+      const res = await fetch(`${API_BASE}/api/tags/suggestions?topicId=${topicId}`, {
+        headers: authHeaders,
+        signal,
+      });
+
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || 'Failed to load topic tags');
+      }
+      const data = await res.json();
+      setTopicTags(data);
+    } catch (err: unknown) {
+      if (err instanceof Error && err.name !== 'AbortError') {
+        setError(err.message ?? 'Something went wrong fetching topic tags');
+      }
+    }
+  }, [authHeaders, token, topicId]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchTopicTags(controller.signal);
+    return () => controller.abort();
+  }, [fetchTopicTags]);
 
   const handleCreateNote = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -224,6 +255,33 @@ const TopicView = () => {
         </div>
 
         <h1 className="text-3xl font-bold mb-6">{topicTitle}</h1>
+
+        {/* --- Topic Tags Section --- */}
+        {topicTags.length > 0 && (
+          <div className="mb-10">
+            <h2 className="text-xl font-bold mb-4 text-gray-800 dark:text-white">Tags in this Topic</h2>
+            <div className="flex flex-wrap gap-2">
+              {topicTags.map((tag) => (
+                <span
+                  key={tag}
+                  onClick={() => setSelectedTag(tag)}
+                  className={`bg-blue-500/10 text-blue-500 dark:bg-blue-600/30 dark:text-blue-300 text-sm px-3 py-1 rounded-full cursor-pointer hover:bg-blue-500/20 dark:hover:bg-blue-600/40 transition ${selectedTag === tag ? 'ring-2 ring-blue-500 dark:ring-blue-400' : ''}`}
+                >
+                  {tag}
+                </span>
+              ))}
+              {selectedTag && (
+                <button
+                  onClick={() => setSelectedTag(null)}
+                  className="bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200 text-sm px-3 py-1 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 transition"
+                >
+                  Clear Tag Filter
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+        {/* --- End Topic Tags Section --- */}
 
         <NoteEditor
           submitting={submitting}
