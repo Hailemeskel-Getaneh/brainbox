@@ -22,6 +22,7 @@ const NoteEditor = ({ submitting, content, tags, onContentChange, onTagsChange, 
     const { token } = useAuth(); // Use useAuth to get the token
     const [showTagSuggestions, setShowTagSuggestions] = useState(false);
     const [allUserTags, setAllUserTags] = useState<string[]>([]); // Moved declaration here
+    const [loadingTags, setLoadingTags] = useState(false); // New state for loading tags
 
     const editorOptions = useMemo(() => ({
         theme: theme === 'light' ? 'light' : 'dark',
@@ -42,6 +43,7 @@ const NoteEditor = ({ submitting, content, tags, onContentChange, onTagsChange, 
     useEffect(() => {
         const fetchAllTags = async () => {
             if (!token) return;
+            setLoadingTags(true); // Set loading to true
             try {
                 const res = await fetch(`${import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5000'}/api/tags/suggestions`, {
                     headers: { 'Authorization': `Bearer ${token}` }
@@ -51,6 +53,8 @@ const NoteEditor = ({ submitting, content, tags, onContentChange, onTagsChange, 
                 setAllUserTags(data);
             } catch (error: unknown) { // Use unknown for error type
                 console.error('Error fetching all tags:', error);
+            } finally {
+                setLoadingTags(false); // Set loading to false
             }
         };
         fetchAllTags();
@@ -80,8 +84,11 @@ const NoteEditor = ({ submitting, content, tags, onContentChange, onTagsChange, 
                         onChange={(e) => onTagsChange(e.target.value)}
                         onFocus={() => setShowTagSuggestions(true)}
                         onBlur={() => setTimeout(() => setShowTagSuggestions(false), 100)} // Delay hiding to allow click on suggestion
-                        className="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg p-3 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                        className="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg p-3 pr-10 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
                     />
+                    {loadingTags && (
+                        <Loader2 size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 animate-spin" />
+                    )}
                     {showTagSuggestions && tagSuggestions.length > 0 && (
                         <div className="absolute z-10 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg mt-1 max-h-48 overflow-y-auto shadow-lg">
                             {tagSuggestions.map((tag: string) => (
