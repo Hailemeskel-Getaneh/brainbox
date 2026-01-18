@@ -30,7 +30,7 @@ export const getNotes = async (req, res) => {
 
         if (tags) {
             // tags can be a comma-separated string, convert to array
-            const tagArray = Array.isArray(tags) ? tags : (tags as string).split(',');
+            const tagArray = Array.isArray(tags) ? tags : tags.split(',');
             // For checking if ALL tags are present in the TEXT[] column
             // Use ANY for checking if ANY tag is present
             // For checking ALL, we need to iterate
