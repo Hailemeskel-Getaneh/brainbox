@@ -9,10 +9,12 @@ interface NoteEditorProps {
     content: string;
     tags: string;
     onContentChange: (value: string) => void;
-    onTagsChange: (value: string) => void;
+    onTagsChange: (value: string | ((prevTags: string) => string)) => void; // Updated type for functional updates
     onSubmit: (e: React.FormEvent) => void;
     buttonText: string;
     onCancel?: () => void; // Optional onCancel prop
+    isComplete?: boolean; // New: isComplete field
+    onIsCompleteChange?: (isComplete: boolean) => void; // New: onIsCompleteChange handler
 }
 
 const NoteEditor = ({ submitting, content, tags, onContentChange, onTagsChange, onSubmit, buttonText, onCancel }: NoteEditorProps) => {
@@ -57,6 +59,18 @@ const NoteEditor = ({ submitting, content, tags, onContentChange, onTagsChange, 
     return (
         <div className="mb-8 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
             <form onSubmit={onSubmit} className="flex flex-col gap-4">
+                {onIsCompleteChange && (
+                    <div className="flex items-center gap-2 mb-2">
+                        <input
+                            type="checkbox"
+                            id="isComplete"
+                            checked={isComplete || false}
+                            onChange={(e) => onIsCompleteChange(e.target.checked)}
+                            className="h-4 w-4 text-blue-600 dark:text-blue-500 rounded border-gray-300 focus:ring-blue-500"
+                        />
+                        <label htmlFor="isComplete" className="text-gray-700 dark:text-gray-300">Mark as Complete</label>
+                    </div>
+                )}
                 <SimpleMDE value={content} onChange={onContentChange} options={editorOptions} />
                 <div className="relative">
                     <input

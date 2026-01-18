@@ -41,6 +41,7 @@ const TopicView = () => {
   const [editingNoteId, setEditingNoteId] = useState<number | null>(null);
   const [editContent, setEditContent] = useState('');
   const [editTags, setEditTags] = useState('');
+  const [editIsComplete, setEditIsComplete] = useState<boolean>(false); // New state variable
 
   const [showExportOptions, setShowExportOptions] = useState(false);
 
@@ -454,6 +455,8 @@ const TopicView = () => {
                     onSubmit={() => handleUpdateNote(note.id)}
                     onCancel={() => setEditingNoteId(null)}
                     buttonText="Save"
+                    isComplete={editIsComplete}
+                    onIsCompleteChange={setEditIsComplete}
                   />
                 ) : (
                   <Note
@@ -463,7 +466,7 @@ const TopicView = () => {
                       setEditingNoteId(id);
                       setEditContent(content);
                       setEditTags(tags);
-                      // If needed, also set is_complete for editing, but NoteEditor handles its own state
+                      setEditIsComplete(is_complete); // Use is_complete here
                     }}
                     onToggleComplete={handleToggleComplete} // Pass the new handler
                   />
