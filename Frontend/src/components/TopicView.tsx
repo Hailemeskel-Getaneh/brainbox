@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Loader2, Download } from 'lucide-react';
+import { ArrowLeft, Loader2, Download, ChevronUp, ChevronDown } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import 'easymde/dist/easymde.min.css';
 import Note from './Note';
@@ -332,28 +332,33 @@ const TopicView = () => {
 
         <div className="flex items-center gap-4 mb-6">
             <label htmlFor="sort-by" className="text-gray-700 dark:text-gray-300">Sort by:</label>
-            <select
-                id="sort-by"
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as 'created_at' | 'updated_at' | 'content')}
-                className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg p-2 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-            >
-                <option value="created_at">Creation Date</option>
-                <option value="updated_at">Last Updated</option>
-                <option value="content">Content</option>
-            </select>
+            <div className="relative">
+                <select
+                    id="sort-by"
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value as 'created_at' | 'updated_at' | 'content')}
+                    className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg p-2 pr-8 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition appearance-none"
+                >
+                    <option value="created_at">Creation Date</option>
+                    <option value="updated_at">Last Updated</option>
+                    <option value="content">Content</option>
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-300">
+                    {sortOrder === 'ASC' ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                </div>
+            </div>
             <div className="flex gap-2">
                 <button
                     onClick={() => setSortOrder('ASC')}
-                    className={`px-3 py-2 rounded-lg text-sm transition ${sortOrder === 'ASC' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600'}`}
+                    className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-1 ${sortOrder === 'ASC' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600'}`}
                 >
-                    ASC
+                    ASC {sortOrder === 'ASC' ? <ChevronUp size={16} /> : null}
                 </button>
                 <button
                     onClick={() => setSortOrder('DESC')}
-                    className={`px-3 py-2 rounded-lg text-sm transition ${sortOrder === 'DESC' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600'}`}
+                    className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-1 ${sortOrder === 'DESC' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600'}`}
                 >
-                    DESC
+                    DESC {sortOrder === 'DESC' ? <ChevronDown size={16} /> : null}
                 </button>
             </div>
         </div>
