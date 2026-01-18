@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Trash2, ArrowRight, Loader2, Search, Edit } from 'lucide-react';
+import { Plus, Trash2, ArrowRight, Loader2, Search, Edit, ChevronUp, ChevronDown } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import Header from './Header';
 import ConfirmationModal from './ConfirmationModal';
@@ -37,6 +37,8 @@ const Dashboard = () => {
   const [topicSearchTerm, setTopicSearchTerm] = useState('');
   const [allTags, setAllTags] = useState<string[]>([]);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<'created_at' | 'title' | 'note_count'>('created_at');
+  const [sortOrder, setSortOrder] = useState<'ASC' | 'DESC'>('DESC');
 
   const navigate = useNavigate();
   const { token } = useAuth();
@@ -71,7 +73,12 @@ const Dashboard = () => {
   const fetchTopics = useCallback(async (signal?: AbortSignal) => {
     try {
       setLoading(true);
-      const url = selectedTag ? `${API_BASE}/topics?tag=${selectedTag}` : `${API_BASE}/topics`;
+      const params = new URLSearchParams();
+      if (selectedTag) params.append('tag', selectedTag);
+      params.append('sortBy', sortBy);
+      params.append('sortOrder', sortOrder);
+
+      const url = `${API_BASE}/topics?${params.toString()}`;
       const res = await fetch(url, {
         headers: authHeaders,
         signal,
@@ -87,7 +94,7 @@ const Dashboard = () => {
     } finally {
       setLoading(false);
     }
-  }, [authHeaders, selectedTag]);
+  }, [authHeaders, selectedTag, sortBy, sortOrder]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -384,6 +391,39 @@ const Dashboard = () => {
                   &times;
                 </button>
               )}
+            </div>
+
+            <div className="flex items-center gap-4 mb-10">
+                <label htmlFor="sort-topics-by" className="text-gray-700 dark:text-gray-300">Sort topics by:</label>
+                <div className="relative">
+                    <select
+                        id="sort-topics-by"
+                        value={sortBy}
+                        onChange={(e) => setSortBy(e.target.value as 'created_at' | 'title' | 'note_count')}
+                        className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg p-2 pr-8 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition appearance-none"
+                    >
+                        <option value="created_at">Creation Date</option>
+                        <option value="title">Title</option>
+                        <option value="note_count">Note Count</option>
+                    </select>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-300">
+                        {sortOrder === 'ASC' ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                    </div>
+                </div>
+                <div className="flex gap-2">
+                    <button
+                        onClick={() => setSortOrder('ASC')}
+                        className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-1 ${sortOrder === 'ASC' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600'}`}
+                    >
+                        ASC {sortOrder === 'ASC' ? <ChevronUp size={16} /> : null}
+                    </button>
+                    <button
+                        onClick={() => setSortOrder('DESC')}
+                        className={`px-3 py-2 rounded-lg text-sm transition flex items-center gap-1 ${sortOrder === 'DESC' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600'}`}
+                    >
+                        DESC {sortOrder === 'DESC' ? <ChevronDown size={16} /> : null}
+                    </button>
+                </div>
             </div>
 
             <form onSubmit={handleCreateTopic} className="mb-10 flex gap-4">
