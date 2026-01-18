@@ -4,6 +4,7 @@ import { Plus, Trash2, ArrowRight, Loader2, Search, Edit, ChevronUp, ChevronDown
 import { useAuth } from '../context/AuthContext';
 import Header from './Header';
 import ConfirmationModal from './ConfirmationModal';
+import { highlightSearchTerm } from '../utils/highlightSearchTerm';
 
 interface Topic {
   id: number;
@@ -364,7 +365,7 @@ const Dashboard = () => {
                     >
                       in: {note.topic_title}
                     </p>
-                    <p className="text-gray-700 dark:text-gray-300">{note.content}</p>
+                    <p className="text-gray-700 dark:text-gray-300">{highlightSearchTerm(note.content, searchTerm)}</p>
                   </div>
                 ))}
               </div>
