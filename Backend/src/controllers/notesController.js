@@ -9,8 +9,8 @@ export const getNotes = async (req, res) => {
         const validSortBy = ['created_at', 'content', 'updated_at']; // Assuming notes table has updated_at
         const validSortOrder = ['ASC', 'DESC'];
 
-        const finalSortBy = validSortBy.includes(sortBy as string) ? sortBy : 'created_at';
-        const finalSortOrder = validSortOrder.includes((sortOrder as string).toUpperCase()) ? (sortOrder as string).toUpperCase() : 'ASC';
+        const finalSortBy = validSortBy.includes(sortBy) ? sortBy : 'created_at';
+        const finalSortOrder = validSortOrder.includes(sortOrder.toUpperCase()) ? sortOrder.toUpperCase() : 'ASC';
 
         // Verify topic ownership
         const topicCheck = await pool.query('SELECT * FROM topics WHERE id = $1 AND user_id = $2', [topicId, req.user.id]);

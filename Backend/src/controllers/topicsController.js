@@ -10,8 +10,8 @@ export const getTopics = async (req, res) => {
         const validSortBy = ['created_at', 'title', 'note_count']; // 'note_count' is from LEFT JOIN COUNT
         const validSortOrder = ['ASC', 'DESC'];
 
-        const finalSortBy = validSortBy.includes(sortBy as string) ? sortBy : 'created_at';
-        const finalSortOrder = validSortOrder.includes((sortOrder as string).toUpperCase()) ? (sortOrder as string).toUpperCase() : 'DESC';
+        const finalSortBy = validSortBy.includes(sortBy) ? sortBy : 'created_at';
+        const finalSortOrder = validSortOrder.includes(sortOrder.toUpperCase()) ? sortOrder.toUpperCase() : 'DESC';
 
         let query = `
             SELECT t.*, COUNT(n.id) AS note_count
