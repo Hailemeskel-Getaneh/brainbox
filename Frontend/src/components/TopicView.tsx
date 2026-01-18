@@ -44,6 +44,8 @@ const TopicView = () => {
   const [editIsComplete, setEditIsComplete] = useState<boolean>(false); // New state variable
 
   const [showExportOptions, setShowExportOptions] = useState(false);
+  const [isConfirmingDeleteNote, setIsConfirmingDeleteNote] = useState(false);
+  const [noteToDeleteId, setNoteToDeleteId] = useState<number | null>(null);
 
   const authHeaders = useMemo(
     () => ({ Authorization: `Bearer ${token}` }),
@@ -202,26 +204,6 @@ const TopicView = () => {
     }
   };
 
-  const handleDeleteNote = async (id: number) => {
-    if (!confirm('Delete this note permanently?')) return;
-    const snapshot = notes;
-    setNotes(prev => prev.filter(n => n.id !== id));
-    try {
-      const res = await fetch(`${API_BASE}/api/notes/${id}`, {
-        method: 'DELETE',
-        headers: authHeaders,
-      });
-      if (!res.ok) throw new Error('Failed to delete note');
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError('An unknown error occurred during note deletion.');
-      }
-      setNotes(snapshot);
-    }
-  };
-
   const handleToggleComplete = async (id: number, is_complete: boolean) => {
     const originalNotes = [...notes];
     setNotes(prevNotes =>
@@ -248,6 +230,43 @@ const TopicView = () => {
       }
       setNotes(originalNotes); // Rollback optimistic update
     }
+  };
+
+  const handleDeleteNote = (id: number) => {
+    setNoteToDeleteId(id);
+    setIsConfirmingDeleteNote(true);
+  };
+
+  const confirmDeleteNote = async () => {
+    if (noteToDeleteId === null) return;
+
+    const id = noteToDeleteId;
+    setIsConfirmingDeleteNote(false);
+    setNoteToDeleteId(null);
+
+    const snapshot = notes;
+    setNotes(prev => prev.filter(n => n.id !== id));
+
+    try {
+      const res = await fetch(`${API_BASE}/api/notes/${id}`, {
+        method: 'DELETE',
+        headers: authHeaders,
+      });
+      if (!res.ok) throw new Error('Failed to delete note');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      }
+      else {
+        setError('An unknown error occurred during note deletion.');
+      }
+      setNotes(snapshot);
+    }
+  };
+
+  const cancelDeleteNote = () => {
+    setIsConfirmingDeleteNote(false);
+    setNoteToDeleteId(null);
   };
 
   const handleExport = (format: 'markdown' | 'text') => {
@@ -281,6 +300,13 @@ const TopicView = () => {
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-8 text-gray-900 dark:text-white">
       <div className="max-w-3xl mx-auto">
+        <ConfirmationModal
+          isOpen={isConfirmingDeleteNote}
+          onClose={cancelDeleteNote}
+          onConfirm={confirmDeleteNote}
+          title="Confirm Note Deletion"
+          message="Are you sure you want to delete this note permanently? This action cannot be undone."
+        />
         <div className="flex justify-between items-center mb-6">
           <button
             onClick={() => navigate('/dashboard')}
