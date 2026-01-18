@@ -31,6 +31,9 @@ const TopicView = () => {
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [topicTags, setTopicTags] = useState<string[]>([]);
 
+  const [sortBy, setSortBy] = useState<'created_at' | 'updated_at' | 'content'>('created_at');
+  const [sortOrder, setSortOrder] = useState<'ASC' | 'DESC'>('DESC');
+
   const [newNoteContent, setNewNoteContent] = useState('');
   const [newNoteTags, setNewNoteTags] = useState('');
 
@@ -64,6 +67,8 @@ const TopicView = () => {
         if (searchTerm) params.append('searchTerm', searchTerm);
         if (filterTags) params.append('tags', filterTags);
         if (selectedTag) params.append('tags', selectedTag); // Add selectedTag to filter
+        params.append('sortBy', sortBy); // Add sortBy
+        params.append('sortOrder', sortOrder); // Add sortOrder
 
         const notesRes = await fetch(
           `${API_BASE}/api/notes/${topicId}${params.toString() ? `?${params}` : ''}`,
@@ -86,7 +91,7 @@ const TopicView = () => {
         setLoading(false);
       }
     },
-    [topicId, authHeaders, navigate, searchTerm, filterTags, selectedTag] // Add selectedTag to dependencies
+    [topicId, authHeaders, navigate, searchTerm, filterTags, selectedTag, sortBy, sortOrder] // Add sortBy, sortOrder to dependencies
   );
 
   useEffect(() => {
@@ -323,6 +328,34 @@ const TopicView = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5.99C17.65 3 21 6.35 21 10c0 4.63-3.37 8-8 8H6c-3.65 0-7-3.35-7-7 0-3.65 3.35-7 7-7zm0 14h10c3.35 0 6-2.65 6-6s-2.65-6-6-6H7C3.35 6 0 8.65 0 12s2.65 6 6 6z" />
             </svg>
           </div>
+        </div>
+
+        <div className="flex items-center gap-4 mb-6">
+            <label htmlFor="sort-by" className="text-gray-700 dark:text-gray-300">Sort by:</label>
+            <select
+                id="sort-by"
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as 'created_at' | 'updated_at' | 'content')}
+                className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg p-2 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+            >
+                <option value="created_at">Creation Date</option>
+                <option value="updated_at">Last Updated</option>
+                <option value="content">Content</option>
+            </select>
+            <div className="flex gap-2">
+                <button
+                    onClick={() => setSortOrder('ASC')}
+                    className={`px-3 py-2 rounded-lg text-sm transition ${sortOrder === 'ASC' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600'}`}
+                >
+                    ASC
+                </button>
+                <button
+                    onClick={() => setSortOrder('DESC')}
+                    className={`px-3 py-2 rounded-lg text-sm transition ${sortOrder === 'DESC' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600'}`}
+                >
+                    DESC
+                </button>
+            </div>
         </div>
 
         {/* --- Topic Tags Section --- */}
