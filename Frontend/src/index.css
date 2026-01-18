@@ -175,3 +175,16 @@ html.dark .ProseMirror .hljs {
   color: #e0e0e0;
 }
 
+/* Search term highlighting */
+.highlight {
+  background-color: yellow;
+  color: black;
+  padding: 0 2px;
+  border-radius: 2px;
+}
+
+html.dark .highlight {
+  background-color: #8B8000; /* Darker yellow for dark mode */
+  color: white;
+}
+
