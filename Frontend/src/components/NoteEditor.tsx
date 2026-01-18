@@ -17,7 +17,7 @@ interface NoteEditorProps {
     onIsCompleteChange?: (isComplete: boolean) => void; // New: onIsCompleteChange handler
 }
 
-const NoteEditor = ({ submitting, content, tags, onContentChange, onTagsChange, onSubmit, buttonText, onCancel }: NoteEditorProps) => {
+const NoteEditor = ({ submitting, content, tags, onContentChange, onTagsChange, onSubmit, buttonText, onCancel, isComplete, onIsCompleteChange }: NoteEditorProps) => {
     const { theme } = useTheme();
     const { token } = useAuth(); // Use useAuth to get the token
     const [showTagSuggestions, setShowTagSuggestions] = useState(false);
