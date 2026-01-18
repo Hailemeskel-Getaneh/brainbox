@@ -3,8 +3,16 @@ import pool from '../db/index.js';
 
 export const getTopics = async (req, res) => {
     try {
-        const { tag } = req.query;
+        const { tag, sortBy = 'created_at', sortOrder = 'DESC' } = req.query; // Add sortBy and sortOrder
         const userId = req.user.id;
+
+        // Validate sortBy and sortOrder to prevent SQL injection
+        const validSortBy = ['created_at', 'title', 'note_count']; // 'note_count' is from LEFT JOIN COUNT
+        const validSortOrder = ['ASC', 'DESC'];
+
+        const finalSortBy = validSortBy.includes(sortBy as string) ? sortBy : 'created_at';
+        const finalSortOrder = validSortOrder.includes((sortOrder as string).toUpperCase()) ? (sortOrder as string).toUpperCase() : 'DESC';
+
         let query = `
             SELECT t.*, COUNT(n.id) AS note_count
             FROM topics t
@@ -20,7 +28,7 @@ export const getTopics = async (req, res) => {
 
         query += `
             GROUP BY t.id
-            ORDER BY t.created_at DESC
+            ORDER BY ${finalSortBy} ${finalSortOrder}
         `;
 
         const result = await pool.query(query, queryParams);
