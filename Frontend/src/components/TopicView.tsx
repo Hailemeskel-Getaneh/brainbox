@@ -11,6 +11,7 @@ export interface NoteType {
   content: string;
   created_at: string;
   tags?: string[];
+  is_complete?: boolean; // New: is_complete field
 }
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5000';
@@ -142,6 +143,7 @@ const TopicView = () => {
       content: newNoteContent,
       created_at: new Date().toISOString(),
       tags,
+      is_complete: false, // Default to false for new notes
     };
 
     setNotes(prev => [...prev, optimistic]);
@@ -153,7 +155,7 @@ const TopicView = () => {
       const res = await fetch(`${API_BASE}/api/notes/${topicId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...authHeaders },
-        body: JSON.stringify({ content: optimistic.content, tags }),
+        body: JSON.stringify({ content: optimistic.content, tags, is_complete: false }), // Send is_complete
       });
       if (!res.ok) throw new Error('Failed to create note');
     } catch (err: unknown) {
@@ -168,16 +170,20 @@ const TopicView = () => {
     }
   };
 
-  const handleUpdateNote = async (id: number) => {
+  const handleUpdateNote = async (id: number, is_complete_status?: boolean) => { // Accept optional is_complete_status
     if (!topicId) return;
     const tags = editTags.split(',').map(t => t.trim()).filter(Boolean);
+
+    // Find the current note to get its is_complete status if not provided
+    const currentNote = notes.find(note => note.id === id);
+    const finalIsComplete = is_complete_status !== undefined ? is_complete_status : (currentNote?.is_complete || false);
 
     try {
       setSubmitting(true);
       const res = await fetch(`${API_BASE}/api/notes/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', ...authHeaders },
-        body: JSON.stringify({ content: editContent, tags }),
+        body: JSON.stringify({ content: editContent, tags, is_complete: finalIsComplete }), // Send is_complete
       });
       if (!res.ok) throw new Error('Failed to update note');
       setEditingNoteId(null);
@@ -212,6 +218,34 @@ const TopicView = () => {
         setError('An unknown error occurred during note deletion.');
       }
       setNotes(snapshot);
+    }
+  };
+
+  const handleToggleComplete = async (id: number, is_complete: boolean) => {
+    const originalNotes = [...notes];
+    setNotes(prevNotes =>
+      prevNotes.map(note =>
+        note.id === id ? { ...note, is_complete } : note
+      )
+    );
+
+    try {
+      const res = await fetch(`${API_BASE}/api/notes/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', ...authHeaders },
+        body: JSON.stringify({ is_complete }),
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to toggle note completion status');
+      }
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An unknown error occurred while toggling note completion.');
+      }
+      setNotes(originalNotes); // Rollback optimistic update
     }
   };
 
@@ -425,11 +459,13 @@ const TopicView = () => {
                   <Note
                     note={note}
                     onDelete={handleDeleteNote}
-                    onEdit={(id, content, tags) => {
+                    onEdit={(id, content, tags, is_complete) => { // Added is_complete
                       setEditingNoteId(id);
                       setEditContent(content);
                       setEditTags(tags);
+                      // If needed, also set is_complete for editing, but NoteEditor handles its own state
                     }}
+                    onToggleComplete={handleToggleComplete} // Pass the new handler
                   />
                 )}
               </div>

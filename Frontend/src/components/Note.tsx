@@ -6,15 +6,26 @@ import type { NoteType } from './TopicView';
 interface NoteProps {
     note: NoteType;
     onDelete: (id: number) => void;
-    onEdit: (id: number, content: string, tags: string) => void;
+    onEdit: (id: number, content: string, tags: string, is_complete: boolean) => void;
+    onToggleComplete: (id: number, is_complete: boolean) => void;
 }
 
-const Note = ({ note, onDelete, onEdit }: NoteProps) => {
+const Note = ({ note, onDelete, onEdit, onToggleComplete }: NoteProps) => {
     return (
-        <div className="bg-white dark:bg-gray-800/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-            <ReactMarkdown rehypePlugins={[rehypeRaw]}>
-                {note.content}
-            </ReactMarkdown>
+        <div className={`bg-white dark:bg-gray-800/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700 ${note.is_complete ? 'opacity-70' : ''}`}>
+            <div className="flex justify-between items-start mb-2">
+                <input
+                    type="checkbox"
+                    checked={note.is_complete}
+                    onChange={() => onToggleComplete(note.id, !note.is_complete)}
+                    className="mr-2 h-5 w-5 text-blue-600 dark:text-blue-500 rounded border-gray-300 focus:ring-blue-500"
+                />
+                <div className="flex-1">
+                    <ReactMarkdown rehypePlugins={[rehypeRaw]} className={note.is_complete ? 'line-through text-gray-500 dark:text-gray-400' : ''}>
+                        {note.content}
+                    </ReactMarkdown>
+                </div>
+            </div>
             <div className="mt-4 pt-2 border-t border-gray-200 dark:border-gray-700">
                 <p className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-2">Tags:</p>
                 {note.tags && note.tags.length > 0 ? (
@@ -40,7 +51,7 @@ const Note = ({ note, onDelete, onEdit }: NoteProps) => {
                         <Trash2 size={16} />
                     </button>
                     <button
-                        onClick={() => onEdit(note.id, note.content, note.tags?.join(', ') || '')}
+                        onClick={() => onEdit(note.id, note.content, note.tags?.join(', ') || '', note.is_complete || false)}
                         aria-label="Edit note"
                         className="text-gray-400 dark:text-gray-500 hover:text-blue-500 dark:hover:text-blue-400 p-1 rounded-full hover:bg-blue-400/10"
                     >
