@@ -18,7 +18,7 @@ export const getNotes = async (req, res) => {
             return res.status(404).json({ error: 'Topic not found or access denied' });
         }
 
-        let query = 'SELECT * FROM notes WHERE topic_id = $1';
+        let query = 'SELECT id, topic_id, content, created_at, tags, is_complete FROM notes WHERE topic_id = $1'; // Explicitly select is_complete
         const queryParams = [topicId];
         let paramIndex = 2; // Start index for additional parameters
 
@@ -51,7 +51,7 @@ export const getNotes = async (req, res) => {
 export const createNote = async (req, res) => {
     try {
         const { topicId } = req.params;
-        const { content, tags } = req.body; // Destructure tags from req.body
+        const { content, tags, is_complete } = req.body; // Destructure tags and is_complete
 
         // Verify topic ownership
         const topicCheck = await pool.query('SELECT * FROM topics WHERE id = $1 AND user_id = $2', [topicId, req.user.id]);
@@ -59,10 +59,10 @@ export const createNote = async (req, res) => {
             return res.status(404).json({ error: 'Topic not found or access denied' });
         }
 
-        // Use COALESCE for tags to ensure an empty array is used if not provided
+        // Use COALESCE for tags and is_complete
         const result = await pool.query(
-            'INSERT INTO notes (topic_id, content, tags) VALUES ($1, $2, COALESCE($3, ARRAY[]::TEXT[])) RETURNING *',
-            [topicId, content, tags] // Pass tags to the query
+            'INSERT INTO notes (topic_id, content, tags, is_complete) VALUES ($1, $2, COALESCE($3, ARRAY[]::TEXT[]), COALESCE($4, FALSE)) RETURNING *',
+            [topicId, content, tags, is_complete] // Pass tags and is_complete to the query
         );
         res.status(201).json(result.rows[0]);
     } catch (error) {
@@ -110,7 +110,7 @@ export const searchNotes = async (req, res) => {
 export const updateNote = async (req, res) => {
     try {
         const { id } = req.params;
-        const { content, tags } = req.body; // Destructure tags from req.body
+        const { content, tags, is_complete } = req.body; // Destructure tags and is_complete
 
         // Verify note ownership through topic ownership
         const noteCheck = await pool.query(
@@ -124,10 +124,10 @@ export const updateNote = async (req, res) => {
             return res.status(404).json({ error: 'Note not found or access denied' });
         }
 
-        // Update content and tags. Use COALESCE for tags.
+        // Update content, tags, and is_complete. Use COALESCE for tags.
         const result = await pool.query(
-            'UPDATE notes SET content = $1, tags = COALESCE($2, ARRAY[]::TEXT[]) WHERE id = $3 RETURNING *',
-            [content, tags, id]
+            'UPDATE notes SET content = $1, tags = COALESCE($2, ARRAY[]::TEXT[]), is_complete = $3 WHERE id = $4 RETURNING *',
+            [content, tags, is_complete, id]
         );
 
         res.json(result.rows[0]);

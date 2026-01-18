@@ -44,6 +44,24 @@ export const migrateDatabase = async () => {
         } else {
             console.log('Migration skipped: tags column already exists');
         }
+
+        // Migration to add is_complete column to notes table
+        const isCompleteColumnCheck = await pool.query(`
+            SELECT column_name 
+            FROM information_schema.columns 
+            WHERE table_name='notes' AND column_name='is_complete'
+        `);
+
+        if (isCompleteColumnCheck.rows.length === 0) {
+            console.log('Adding is_complete column to notes table...');
+            await pool.query(`
+                ALTER TABLE notes 
+                ADD COLUMN is_complete BOOLEAN DEFAULT FALSE
+            `);
+            console.log('Migration completed: is_complete column added to notes table');
+        } else {
+            console.log('Migration skipped: is_complete column already exists');
+        }
     } catch (err) {
         console.error('Migration error:', err);
         throw err;
