@@ -21,9 +21,11 @@ const Note = ({ note, onDelete, onEdit, onToggleComplete }: NoteProps) => {
                     className="mr-2 h-5 w-5 text-blue-600 dark:text-blue-500 rounded border-gray-300 focus:ring-blue-500"
                 />
                 <div className="flex-1">
-                    <ReactMarkdown rehypePlugins={[rehypeRaw]} className={note.is_complete ? 'line-through text-gray-500 dark:text-gray-400' : ''}>
-                        {note.content}
-                    </ReactMarkdown>
+                    <div className={note.is_complete ? 'line-through text-gray-500 dark:text-gray-400' : ''}>
+                        <ReactMarkdown rehypePlugins={[rehypeRaw]}>
+                            {note.content}
+                        </ReactMarkdown>
+                    </div>
                 </div>
             </div>
             <div className="mt-4 pt-2 border-t border-gray-200 dark:border-gray-700">
