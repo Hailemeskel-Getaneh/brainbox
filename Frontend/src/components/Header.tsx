@@ -3,7 +3,7 @@ import { LogOut, User, Sun, Moon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/useTheme';
 
-const Header = () => {
+export default function Header() {
     const navigate = useNavigate();
     const { logout, user } = useAuth();
     const { theme, toggleTheme } = useTheme();
@@ -44,6 +44,4 @@ const Header = () => {
             </div>
         </header>
     );
-};
-
-export default Header;
+}
