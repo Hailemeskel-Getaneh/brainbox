@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import pool from '../db/index.js';
 
 export const register = async (req, res) => {
+    console.log('Attempting to register a new user.');
     const { username, email, password } = req.body;
 
     try {
