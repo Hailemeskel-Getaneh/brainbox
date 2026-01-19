@@ -9,6 +9,10 @@ import UserProfile from './components/UserProfile';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 
+/**
+ * The main application component.
+ * It sets up the authentication and theme providers, and defines the application's routes.
+ */
 function App() {
   return (
     <AuthProvider>
