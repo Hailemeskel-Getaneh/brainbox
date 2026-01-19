@@ -1,3 +1,8 @@
+/**
+ * This file configures and exports the main Express application.
+ * It sets up middleware for CORS, JSON parsing, and URL encoding.
+ * It also defines the API routes for different resources.
+ */
 import express from 'express';
 import cors from 'cors'
 import dotenv from 'dotenv';
