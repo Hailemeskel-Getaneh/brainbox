@@ -1,5 +1,5 @@
 services:
- 
+  # Backend API service
   brainbox-api:
     build: ./Backend
     ports:
@@ -12,6 +12,7 @@ services:
     depends_on:
       - db
 
+  # Frontend web service
   brainbox-web:
     build: ./Frontend
     ports:
@@ -19,7 +20,7 @@ services:
     depends_on:
       - brainbox-api
 
-
+  # PostgreSQL database service
   db:
     image: postgres:15-alpine
     environment:
