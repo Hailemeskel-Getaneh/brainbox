@@ -19,6 +19,7 @@ export const register = async (req, res) => {
             [username, email, passwordHash]
         );
 
+        // Sign JWT token with the new user's ID
         const token = jwt.sign({ id: newUser.rows[0].id }, "your_jwt_secret", { expiresIn: '1d' });
 
         res.status(201).json({ user: newUser.rows[0], token });
