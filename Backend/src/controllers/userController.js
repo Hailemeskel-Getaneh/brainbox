@@ -30,6 +30,7 @@ export const register = async (req, res) => {
 };
 
 export const login = async (req, res) => {
+    // Authenticate a user by checking their email and password, then issue a JWT token.
     const { email, password } = req.body;
 
     try {
