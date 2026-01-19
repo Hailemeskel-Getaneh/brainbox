@@ -27,4 +27,14 @@ describe('LandingPage', () => {
             expect(screen.getByText('ONLINE')).toBeInTheDocument();
         });
     });
+
+    it('should render the main heading', () => {
+        render(
+            <BrowserRouter>
+                <LandingPage />
+            </BrowserRouter>
+        );
+        const heading = screen.getByRole('heading', { name: /BrainBox/i });
+        expect(heading).toBeInTheDocument();
+    });
 });
