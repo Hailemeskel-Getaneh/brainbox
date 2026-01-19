@@ -1,3 +1,8 @@
+/**
+ * This script is responsible for running database migrations.
+ * It connects to the PostgreSQL database and performs schema changes,
+ * such as adding the `user_id` column to the `topics` table if it doesn't already exist.
+ */
 import pg from 'pg';
 import dotenv from 'dotenv';
 
