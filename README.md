@@ -13,6 +13,16 @@ BrainBox is a lightweight web application designed to help you capture, organize
 *   **Database**: PostgreSQL
 *   **Infrastructure**: Docker, Docker Compose, Github actions
 
+### Why these choices?
+
+*   **React**: Chosen for its component-based architecture, efficient DOM updates, and large community support, making it ideal for building dynamic and interactive user interfaces.
+*   **Vite**: Selected as the build tool for its lightning-fast cold start times and instant hot module reloading, significantly improving development experience.
+*   **Tailwind CSS**: A utility-first CSS framework that enables rapid UI development by composing styles directly in markup, leading to highly customizable and maintainable designs.
+*   **TypeScript**: Utilized for type safety, which helps catch errors early in development, improves code readability, and enhances maintainability for larger codebases.
+*   **Node.js & Express.js**: A powerful combination for the backend due to Node.js's non-blocking I/O model and Express.js's minimalist, flexible framework, allowing for efficient API development.
+*   **PostgreSQL**: A robust, open-source relational database known for its reliability, feature richness, and strong support for complex queries and data integrity.
+*   **Docker & Docker Compose**: Essential for creating reproducible development environments, simplifying deployment, and ensuring consistency across different stages of development and production.
+
 ---
 
 ## 🛠️ Prerequisites
