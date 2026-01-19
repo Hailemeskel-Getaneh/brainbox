@@ -8,6 +8,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import UserProfile from './components/UserProfile';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
+import Footer from './components/Footer';
 
 /**
  * The main application component.
@@ -17,19 +18,24 @@ function App() {
   return (
     <AuthProvider>
       <ThemeProvider>
-        <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+        <div className="flex flex-col min-h-screen">
+          <BrowserRouter>
+            <div className="flex-grow">
+              <Routes>
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
 
-          <Route element={<ProtectedRoute />}>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/topic/:topicId" element={<TopicView />} />
-            <Route path="/profile" element={<UserProfile />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
+                <Route element={<ProtectedRoute />}>
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/topic/:topicId" element={<TopicView />} />
+                  <Route path="/profile" element={<UserProfile />} />
+                </Route>
+              </Routes>
+            </div>
+            <Footer />
+          </BrowserRouter>
+        </div>
       </ThemeProvider>
     </AuthProvider>
   );
