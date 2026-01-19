@@ -26,6 +26,32 @@ Before you begin, ensure you have the following installed:
 
 ---
 
+## 🚀 Getting Started
+
+To get a local copy up and running, follow these simple steps:
+
+1. **Clone the repository:** 
+   ```bash
+   git clone <repository_url> && cd brainbox
+   ```
+2. **Install dependencies:** Run `npm install` in both the `Frontend` and `Backend` directories.
+3. **Start the database:** Use Docker to start the PostgreSQL database:
+   ```bash
+   docker compose up -d db
+   ```
+4. **Run the application:** Start the backend and frontend servers in separate terminals:
+   ```bash
+   # In terminal 1
+   cd Backend && npm start
+
+   # In terminal 2
+   cd Frontend && npm run dev
+   ```
+
+For more detailed instructions, please refer to the [Installation & Setup Guide](#-installation--setup-guide) below.
+
+---
+
 ## 📥 Installation & Setup Guide
 
 Follow these steps to set up the project locally.
