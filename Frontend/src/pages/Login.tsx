@@ -68,7 +68,7 @@ const Login = () => {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6" data-testid="login-form">
             {/* Email Input */}
             <div className="space-y-2">
               <label className="text-sm font-medium text-purple-800 dark:text-purple-100 flex items-center gap-2">
