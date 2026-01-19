@@ -11,6 +11,7 @@ dotenv.config();
 import topicsRoutes from './routes/topicsRoutes.js';
 import notesRoutes from './routes/notesRoutes.js';
 import userRoutes from './routes/userRoutes.js';
+import healthRoutes from './routes/healthRoutes.js';
 import authMiddleware from './middleware/authMiddleware.js';
 
 const app = express();
@@ -22,6 +23,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/users', userRoutes);
 app.use('/api/topics', authMiddleware, topicsRoutes);
 app.use('/api/notes', authMiddleware, notesRoutes);
+app.use('/api/v1/health', healthRoutes);
 
 // Health Check of the app
 app.get('/api/health', (req, res) => {
