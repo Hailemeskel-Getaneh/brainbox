@@ -4,13 +4,13 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
     "build": "tsc -b && vite build",
+    "dev": "vite",
     "lint": "eslint .",
     "preview": "vite preview",
+    "tailwind:init": "./node_modules/.bin/tailwindcss init -p",
     "test": "vitest",
-    "test:ui": "vitest --ui",
-    "tailwind:init": "./node_modules/.bin/tailwindcss init -p"
+    "test:ui": "vitest --ui"
   },
   "dependencies": {
     "@tailwindcss/typography": "^0.5.19",
