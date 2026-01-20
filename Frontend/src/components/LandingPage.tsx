@@ -23,7 +23,7 @@ const LandingPage = () => {
     return (
         <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center p-4">
             <div className="max-w-3xl text-center space-y-8">
-                <h1 className="text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600">
+                <h1 className="text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600" data-testid="brainbox-heading">
                     BrainBox
                 </h1>
                 <p className="text-xl text-gray-400">
