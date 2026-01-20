@@ -1,3 +1,8 @@
+/**
+ * This middleware is responsible for authenticating requests using JWT tokens.
+ * It extracts the token from the Authorization header, verifies it, and
+ * attaches the decoded user information to the request object.
+ */
 import jwt from 'jsonwebtoken';
 
 const authMiddleware = (req, res, next) => {
