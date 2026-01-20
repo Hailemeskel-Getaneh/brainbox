@@ -10,5 +10,6 @@ router.get('/profile', authMiddleware, getUserProfile);
 router.put('/profile', authMiddleware, updateUserProfile);
 router.put('/password', authMiddleware, changeUserPassword);
 router.get('/dashboard/stats', authMiddleware, getDashboardStats);
+router.get('/test', (req, res) => res.send('Test route'));
 
 export default router;
