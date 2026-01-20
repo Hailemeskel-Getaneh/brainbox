@@ -1,3 +1,7 @@
+/**
+ * This controller handles all topic-related API endpoints.
+ * It provides functions for creating, retrieving, updating, and deleting topics.
+ */
 import pool from '../db/index.js';
 
 
