@@ -74,12 +74,14 @@ cd brainbox
 
 ### 2. Install Dependencies
 
-You need to install dependencies for both the Frontend and Backend.
+You need to install dependencies for both the Frontend and Backend. Also, ensure you have `.env` files set up for environment variables, as the project uses `dotenv` for configuration.
 
 **Backend:**
 ```bash
 cd Backend
 npm install
+# Create a .env file based on .env.example (if available)
+# e.g., cp .env.example .env
 cd ..
 ```
 
@@ -87,6 +89,8 @@ cd ..
 ```bash
 cd Frontend
 npm install
+# Create a .env file based on .env.example (if available)
+# e.g., cp .env.example .env
 cd ..
 ```
 
