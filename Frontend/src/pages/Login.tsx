@@ -139,6 +139,7 @@ const Login = () => {
           <Link
             to="/register"
             className="block w-full py-3 px-4 bg-white/50 dark:bg-white/5 border border-gray-300 dark:border-white/20 text-purple-800 dark:text-white font-semibold rounded-xl text-center hover:bg-white/70 dark:hover:bg-white/10 transition-all duration-200"
+            data-testid="create-account-link"
           >
             Create an Account
           </Link>
