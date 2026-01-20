@@ -1,3 +1,8 @@
+/**
+ * This controller handles all note-related API endpoints.
+ * It provides functions for creating, retrieving, updating, and deleting notes,
+ * as well as searching notes and fetching tag suggestions.
+ */
 import pool from '../db/index.js';
 
 export const getNotes = async (req, res) => {
