@@ -5,6 +5,11 @@ import { LogIn, Mail, Lock, AlertCircle, Brain } from 'lucide-react';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5000';
 
+/**
+ * Login component for user authentication.
+ * Handles user input for email and password, submits login requests,
+ * and manages authentication state.
+ */
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
