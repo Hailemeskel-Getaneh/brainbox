@@ -1,7 +1,7 @@
 /**
- * This file configures and exports the main Express application.
- * It sets up middleware for CORS, JSON parsing, and URL encoding.
- * It also defines the API routes for different resources.
+ * @file This file is the main entry point for the BrainBox backend application.
+ * @summary It configures and exports the main Express application, including middleware and API routes.
+ * @description This file sets up middleware for CORS, JSON parsing, and URL encoding. It also defines the API routes for different resources like topics, notes, and users.
  */
 import express from 'express';
 import cors from 'cors'
