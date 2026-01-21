@@ -25,9 +25,18 @@ app.use('/api/topics', authMiddleware, topicsRoutes);
 app.use('/api/notes', authMiddleware, notesRoutes);
 app.use('/api/health', healthRoutes);
 
+// Handle 404 Not Found
+app.use((req, res, next) => {
+    const error = new Error('Not Found');
+    error.statusCode = 404;
+    next(error);
+});
+
 // Generic Error Handling Middleware
 app.use((err, req, res, _next) => {
-    console.error(err.stack); // Log the error stack for debugging
+    if (err.statusCode !== 404) {
+        console.error(err.stack); // Log the error stack for debugging
+    }
     res.status(err.statusCode || 500).json({
         error: err.message || 'Something went wrong!'
     });

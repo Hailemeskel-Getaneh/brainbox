@@ -11,4 +11,9 @@ describe('Health Check', () => {
     it('should always pass', () => {
         expect(true).toBe(true);
     });
+
+    it('should return 404 for a non-existent route', async () => {
+        const res = await request(app).get('/api/non-existent-route');
+        expect(res.statusCode).toEqual(404);
+    });
 });
