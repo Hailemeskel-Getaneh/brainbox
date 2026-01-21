@@ -23,12 +23,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/users', userRoutes);
 app.use('/api/topics', authMiddleware, topicsRoutes);
 app.use('/api/notes', authMiddleware, notesRoutes);
-app.use('/api/v1/health', healthRoutes);
-
-// Health Check of the app
-app.get('/api/health', (req, res) => {
-    res.status(200).json({ status: 'ok', message: 'Backend is running' });
-});
+app.use('/api/health', healthRoutes);
 
 // Generic Error Handling Middleware
 app.use((err, req, res, _next) => {
