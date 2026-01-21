@@ -1,3 +1,7 @@
+/**
+ * This file configures and exports the PostgreSQL connection pool.
+ * It serves as the central point for all database interactions.
+ */
 import pg from 'pg';
 
 const { Pool } = pg;
