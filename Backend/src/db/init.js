@@ -1,3 +1,7 @@
+/**
+ * This script is responsible for initializing the database by creating
+ * the necessary tables (users, topics, notes) if they do not already exist.
+ */
 import pool from './index.js';
 
 export const createTables = async () => {
