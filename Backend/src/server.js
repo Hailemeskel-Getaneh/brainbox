@@ -1,3 +1,8 @@
+/**
+ * This is the main entry point for the backend application.
+ * It is responsible for starting the Express server, connecting to the database,
+ * ensuring necessary tables are created, and running database migrations.
+ */
 import 'dotenv/config';
 import { app } from './app.js';
 import pool from './db/index.js';
