@@ -28,4 +28,18 @@ describe('LandingPage', () => {
             expect(screen.getByText('ONLINE')).toBeInTheDocument();
         });
     });
+
+    it('should show offline status when health check fails', async () => {
+        globalThis.fetch = vi.fn().mockRejectedValue(new Error('API is down'));
+
+        render(
+            <BrowserRouter>
+                <LandingPage />
+            </BrowserRouter>
+        );
+
+        await waitFor(() => {
+            expect(screen.getByText('OFFLINE')).toBeInTheDocument();
+        });
+    });
 });
