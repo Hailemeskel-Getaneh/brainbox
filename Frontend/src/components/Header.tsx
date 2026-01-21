@@ -13,11 +13,6 @@ export default function Header() {
         navigate('/login');
     };
 
-    // @ts-ignore
-    const handleExtraClick = () => {
-      // This is a dummy function
-    };
-
     return (
         <header className="mb-12 flex flex-col md:flex-row md:justify-between md:items-center gap-6">
             <div>

@@ -2,18 +2,21 @@ import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const LandingPage = () => {
-    const [status, setStatus] = useState<'loading' | 'online' | 'offline'>('loading');
+    const [isOnline, setIsOnline] = useState<boolean | null>(null);
     const featuresRef = useRef<HTMLDivElement>(null);
 
     const navigate = useNavigate();
 
     useEffect(() => {
-        fetch('http://localhost:5000/api/health')
-            .then((res) => {
-                if (res.ok) setStatus('online');
-                else setStatus('offline');
-            })
-            .catch(() => setStatus('offline'));
+        const checkStatus = async () => {
+            try {
+                const res = await fetch('http://localhost:5000/api/health');
+                setIsOnline(res.ok);
+            } catch {
+                setIsOnline(false);
+            }
+        };
+        checkStatus();
     }, []);
 
     const scrollToFeatures = () => {
@@ -47,13 +50,13 @@ const LandingPage = () => {
                 <div className="mt-12 p-4 rounded-lg bg-gray-800/50 backdrop-blur-sm border border-gray-700 inline-block">
                     <div className="flex items-center gap-2 text-sm font-mono">
                         <span>System Status:</span>
-                        <span className={`flex items-center gap-1.5 ${status === 'online' ? 'text-green-400' :
-                            status === 'offline' ? 'text-red-400' : 'text-yellow-400'
+                        <span className={`flex items-center gap-1.5 ${isOnline === true ? 'text-green-400' :
+                            isOnline === false ? 'text-red-400' : 'text-yellow-400'
                             }`}>
-                            <span className={`w-2 h-2 rounded-full ${status === 'online' ? 'bg-green-400' :
-                                status === 'offline' ? 'bg-red-400' : 'bg-yellow-400 animate-pulse'
+                            <span className={`w-2 h-2 rounded-full ${isOnline === true ? 'bg-green-400' :
+                                isOnline === false ? 'bg-red-400' : 'bg-yellow-400 animate-pulse'
                                 }`} />
-                            {status.toUpperCase()}
+                            {isOnline === null ? 'LOADING' : isOnline ? 'ONLINE' : 'OFFLINE'}
                         </span>
                     </div>
                 </div>

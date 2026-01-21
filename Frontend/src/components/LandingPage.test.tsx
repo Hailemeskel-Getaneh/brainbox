@@ -18,7 +18,8 @@ describe('LandingPage', () => {
             </BrowserRouter>
         );
 
-        expect(screen.getByText('BrainBox')).toBeInTheDocument();
+        const heading = screen.getByRole('heading', { name: /BrainBox/i });
+        expect(heading).toBeInTheDocument();
         expect(screen.getByText('The next generation of cognitive computing.')).toBeInTheDocument();
         expect(screen.getByText('Get Started')).toBeInTheDocument();
         expect(screen.getByText('Learn More')).toBeInTheDocument();
@@ -26,15 +27,5 @@ describe('LandingPage', () => {
         await waitFor(() => {
             expect(screen.getByText('ONLINE')).toBeInTheDocument();
         });
-    });
-
-    it('should render the main heading', () => {
-        render(
-            <BrowserRouter>
-                <LandingPage />
-            </BrowserRouter>
-        );
-        const heading = screen.getByRole('heading', { name: /BrainBox/i });
-        expect(heading).toBeInTheDocument();
     });
 });
