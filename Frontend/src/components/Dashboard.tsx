@@ -387,6 +387,7 @@ const Dashboard = () => {
                 onChange={(e) => setTopicSearchTerm(e.target.value)}
                 placeholder="Search your topics..."
                 className="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white"
+                aria-label="Search your topics"
               />
               <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400" />
               {topicSearchTerm && (
