@@ -7,7 +7,7 @@ describe('Footer', () => {
         render(<Footer />);
         const currentYear = new Date().getFullYear();
         expect(screen.getByText((content, element) => {
-            return element.tagName.toLowerCase() === 'p' && content.startsWith(`© ${currentYear} BrainBox. All rights reserved.`)
+            return element?.tagName.toLowerCase() === 'p' && content.startsWith(`© ${currentYear} BrainBox. All rights reserved.`)
         })).toBeInTheDocument();
 
         const link = screen.getByRole('link', { name: /GitHub/i });
