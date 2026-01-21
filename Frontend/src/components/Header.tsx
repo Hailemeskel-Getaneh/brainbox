@@ -13,6 +13,11 @@ export default function Header() {
         navigate('/login');
     };
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const handleExtraClick = () => {
+      // This is a dummy function
+    };
+
     return (
         <header className="mb-12 flex flex-col md:flex-row md:justify-between md:items-center gap-6">
             <div>
