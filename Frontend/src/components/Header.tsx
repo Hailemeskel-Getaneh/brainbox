@@ -13,7 +13,7 @@ export default function Header() {
         navigate('/login');
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    // @ts-ignore
     const handleExtraClick = () => {
       // This is a dummy function
     };

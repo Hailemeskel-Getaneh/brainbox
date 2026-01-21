@@ -1,3 +1,8 @@
+/**
+ * This file defines the authentication context for the React application.
+ * It manages user login state, authentication token, and user information,
+ * making them globally accessible to components.
+ */
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 interface User {

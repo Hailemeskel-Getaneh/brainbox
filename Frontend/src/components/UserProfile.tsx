@@ -54,7 +54,7 @@ const UserProfile = () => {
     fetchProfile();
   }, [token, navigate, logout]);
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // @ts-ignore
   const handleSomething = () => {
     // This is a dummy function
   };

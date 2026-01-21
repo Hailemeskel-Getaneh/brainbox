@@ -6,7 +6,7 @@ import { describe, it, expect, vi } from 'vitest';
 // Mock the entire AuthContext module
 vi.mock('../context/AuthContext', () => ({
     AuthContext: {
-        Provider: ({ children }) => children, // Render children directly
+        Provider: ({ children }: { children: React.ReactNode }) => children, // Render children directly
     },
     useAuth: () => ({
         user: null,
@@ -21,7 +21,7 @@ vi.mock('../context/AuthContext', () => ({
 // Mock the entire ThemeContext module
 vi.mock('../context/ThemeContext', () => ({
     ThemeContext: {
-        Provider: ({ children }) => children, // Render children directly
+        Provider: ({ children }: { children: React.ReactNode }) => children, // Render children directly
     },
     useTheme: () => ({
         theme: 'light',
