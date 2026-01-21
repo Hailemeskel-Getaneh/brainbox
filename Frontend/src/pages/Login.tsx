@@ -76,12 +76,13 @@ const Login = () => {
           <form onSubmit={handleSubmit} className="space-y-6" data-testid="login-form">
             {/* Email Input */}
             <div className="space-y-2">
-              <label className="text-sm font-medium text-purple-800 dark:text-purple-100 flex items-center gap-2">
+              <label htmlFor="email" className="text-sm font-medium text-purple-800 dark:text-purple-100 flex items-center gap-2">
                 <Mail className="w-4 h-4" />
                 Email Address
               </label>
               <div className="relative">
                 <input
+                  id="email"
                   type="email"
                   className="w-full px-4 py-3 bg-white/60 dark:bg-white/10 border border-gray-300 dark:border-white/20 rounded-xl text-gray-800 dark:text-white placeholder-purple-500 dark:placeholder-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-all duration-200"
                   placeholder="you@example.com"
@@ -94,12 +95,13 @@ const Login = () => {
 
             {/* Password Input */}
             <div className="space-y-2">
-              <label className="text-sm font-medium text-purple-800 dark:text-purple-100 flex items-center gap-2">
+              <label htmlFor="password" className="text-sm font-medium text-purple-800 dark:text-purple-100 flex items-center gap-2">
                 <Lock className="w-4 h-4" />
                 Password
               </label>
               <div className="relative">
                 <input
+                  id="password"
                   type="password"
                   className="w-full px-4 py-3 bg-white/60 dark:bg-white/10 border border-gray-300 dark:border-white/20 rounded-xl text-gray-800 dark:text-white placeholder-purple-500 dark:placeholder-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-all duration-200"
                   placeholder="••••••••"
