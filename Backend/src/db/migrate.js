@@ -1,3 +1,7 @@
+/**
+ * This script handles database migrations, applying schema changes
+ * like adding columns to tables, only if they don't already exist.
+ */
 import pool from './index.js';
 
 // Migration to add user_id column to topics table if it doesn't exist
