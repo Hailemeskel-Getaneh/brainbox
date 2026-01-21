@@ -282,7 +282,7 @@ const Dashboard = () => {
       <div className="max-w-5xl mx-auto">
         <Header />
 
-        <button onClick={() => console.log('Dummy button clicked!')} className="px-4 py-2 bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 rounded-lg transition mb-4">
+        <button onClick={() => console.log('Dummy button on Dashboard clicked!')} className="px-4 py-2 bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 rounded-lg transition mb-4">
           Dummy Button
         </button>
 
